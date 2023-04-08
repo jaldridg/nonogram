@@ -1,8 +1,11 @@
-#include <stdio.h>
+
 #include "nonogram.hh"
+#include "board.hh"
+
+#include <stdio.h>
 
 int main() {
-    test t = 1;
-    printf("%d\n", t);
+    Board b = Board(5);
+    b.print();
     return 0;
 }
