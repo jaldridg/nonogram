@@ -18,5 +18,16 @@ Board::Board(int size) {
 }
 
 void Board::print() {
-    printf("Hello there!!\n");
+    printf(" ");
+    for(int i = 0; i < 2 * size - 1; i++) {
+        printf("-");
+    }
+    printf("\n");
+    for (int i = 0; i < size; i++) {
+        printf("|");
+        for (int j = 0; j < size; j++) {
+            printf("%c ", rows[i][j]);
+        }
+        printf("\n");
+    }
 }

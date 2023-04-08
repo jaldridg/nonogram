@@ -4,7 +4,7 @@
 #include <vector>
 
 enum Tilestate {
-    UNKNOWN = 63,
+    UNKNOWN = 32,
     NONE = 88,
     COL_ONE = 65,
     COL_TWO = 66,
