@@ -1,0 +1,8 @@
+Rules
+"2/n + 1": Occurs when there are enough colors in a row/col such that you can be certain that there are some in the middle of the row/col
+Test cases in order of complexity when given an nxn board:
+- Fill in board when there's n in one row
+- Fill in what you can with at least 2/n + 1 in a row
+- Fill board when given region r and region m such that r + m + 1 = n
+    In other words, two regions and their gap fills up the row 
+- Expand previous step for any number of regions

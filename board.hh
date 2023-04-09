@@ -21,8 +21,8 @@ struct Board {
     std::vector<Col> cols;
 
     // The hints which were given to solve the puzzle
-    std::vector<Row> row_clues;
-    std::vector<Col> col_clues;
+    std::vector<std::vector<int>> row_clues;
+    std::vector<std::vector<int>> col_clues;
 
     Board(int size);
 
