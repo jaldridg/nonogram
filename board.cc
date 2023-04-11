@@ -4,6 +4,11 @@
 
 Board::Board(int size) {
     Board::size = size;
+    row_clues = std::vector<std::vector<int>>();
+    col_clues = std::vector<std::vector<int>>();
+    rows = std::vector<Line>();
+    cols = std::vector<Line>();
+
     // Fill board with unknown tiles which must be solved
     for (int i = 0; i < size; i++) {
         std::vector<Tilestate> r = std::vector<Tilestate>();
@@ -20,15 +25,13 @@ Board::Board(int size) {
         std::vector<int> cc = std::vector<int>();
         rc.push_back(5);
         cc.push_back(5);
-        row_clues = std::vector<std::vector<int>>();
-        col_clues = std::vector<std::vector<int>>();
         row_clues.push_back(rc);
         col_clues.push_back(cc);
     }
 }
 
 void Board::print() {
-      // Find largest list of clues for rows and cols
+    // Find largest list of clues for rows and cols
     int max_row_clues = 0;
     int max_col_clues = 0;
     for (int i = 0; i < size; i++) {

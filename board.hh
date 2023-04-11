@@ -11,20 +11,20 @@ enum Tilestate {
     COL_THREE = 67
 };
 
-typedef std::vector<Tilestate> Row;
-typedef std::vector<Tilestate> Col;
+typedef std::vector<Tilestate> Line;
 
 struct Board {
     int size;
 
-    std::vector<Row> rows;
-    std::vector<Col> cols;
+    std::vector<Line> rows;
+    std::vector<Line> cols;
 
     // The hints which were given to solve the puzzle
     std::vector<std::vector<int>> row_clues;
     std::vector<std::vector<int>> col_clues;
 
     Board(int size);
+    ~Board();
 
     void print();
 };
