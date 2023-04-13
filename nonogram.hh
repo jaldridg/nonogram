@@ -1,4 +1,4 @@
-#ifndef nonogram_hh
-#define nonogram_hh
+#ifndef NONOGRAM_HH
+#define NONOGRAM_HH
 
 #endif

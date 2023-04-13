@@ -1,5 +1,5 @@
-#ifndef board_hh
-#define board_hh
+#ifndef BOARD_HH
+#define BOARD_HH
 
 #include <vector>
 
@@ -16,15 +16,16 @@ typedef std::vector<Tilestate> Line;
 struct Board {
     int size;
 
-    std::vector<Line> rows;
-    std::vector<Line> cols;
+    std::vector<Line *> * rows;
+    std::vector<Line *> * cols;
 
     // The hints which were given to solve the puzzle
-    std::vector<std::vector<int>> row_clues;
-    std::vector<std::vector<int>> col_clues;
+    std::vector<std::vector<int> *> * row_clues;
+    std::vector<std::vector<int> *> * col_clues;
 
     Board(int size);
-    ~Board();
+    // The destructor since ~Board is being weird
+    void clear();
 
     void print();
 };
