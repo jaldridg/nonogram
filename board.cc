@@ -24,8 +24,22 @@ Board::Board(int size) {
         // Fill in clues
         std::vector<int> * rc = new std::vector<int>();
         std::vector<int> * cc = new std::vector<int>();
-        rc->push_back(5);
-        cc->push_back(5);
+        if (i == 2 || i == 4) {
+            rc->push_back(1);
+            cc->push_back(1);
+            rc->push_back(3);
+            cc->push_back(3);
+        } else if (i == 1) {
+            rc->push_back(1);
+            cc->push_back(1);
+            rc->push_back(1);
+            cc->push_back(1);
+            rc->push_back(1);
+            cc->push_back(1);
+        } else {
+            rc->push_back(5);
+            cc->push_back(5);
+        }
         row_clues->push_back(rc);
         col_clues->push_back(cc);
     }
@@ -46,31 +60,35 @@ void Board::clear() {
 
 void Board::print() {
     // Find largest list of clues for rows and cols
-    /*
     int max_row_clues = 0;
     int max_col_clues = 0;
     for (int i = 0; i < size; i++) {
-        if (row_clues[i].size() > max_row_clues) {
-            max_row_clues = row_clues[i].size();
+        int row_size = row_clues->at(i)->size();
+        if (row_size > max_row_clues) {
+            max_row_clues = row_size;
         }
-        if (col_clues[i].size() > max_col_clues) {
-            max_col_clues = col_clues[i].size();
+        int col_size = col_clues->at(i)->size();
+        if (col_size > max_col_clues) {
+            max_col_clues = col_size;
         }
     }
 
     // Print column rules
     for (int i = max_col_clues; i > 0; i--) {
+        printf(" ");
         for (int j = 0; j < size; j++) {
-            if (col_clues->at(j).size() >= i) {
-                printf("%d ", col_clues->at(j));
+            int size = col_clues->at(j)->size();
+            if (size >= i) {
+                printf("%d ", col_clues->at(j)->at(size - i));
+            } else {
+                printf("  ");
             }
         }
         printf("\n");
     }
-    */
 
+    // Prints the contents of the board
     printf(" ");
-    /*
     for(int i = 0; i < 2 * size - 1; i++) {
         printf("-");
     }
@@ -78,9 +96,8 @@ void Board::print() {
     for (int i = 0; i < size; i++) {
         printf("|");
         for (int j = 0; j < size; j++) {
-            printf("%c ", rows->at(i).at(j));
+            printf("%c ", rows->at(i)->at(j));
         }
         printf("\n");
     }
-    */
 }
