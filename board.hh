@@ -6,9 +6,10 @@
 enum Tilestate {
     UNKNOWN = 32,
     NONE = 88,
-    COL_ONE = 65,
-    COL_TWO = 66,
-    COL_THREE = 67
+    FILLED = 510
+    //COL_ONE = 65,
+    //COL_TWO = 66,
+    //COL_THREE = 67
 };
 
 typedef std::vector<Tilestate> Line;

@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <string>
 #include "board.hh"
 
 Board::Board(int size) {
@@ -73,8 +74,13 @@ void Board::print() {
         }
     }
 
+
     // Print column rules
     for (int i = max_col_clues; i > 0; i--) {
+        // Print spaces to account for row rules
+        for (int j = 0; j < max_row_clues; j++) {
+            printf("  ");
+        }
         printf(" ");
         for (int j = 0; j < size; j++) {
             int size = col_clues->at(j)->size();
@@ -88,13 +94,26 @@ void Board::print() {
     }
 
     // Prints the contents of the board
+    for (int i = 0; i < max_row_clues; i++) {
+        printf("  ");
+    }
     printf(" ");
     for(int i = 0; i < 2 * size - 1; i++) {
         printf("-");
     }
     printf("\n");
     for (int i = 0; i < size; i++) {
+        // Print clues
+        int size = row_clues->at(i)->size();
+        for (int j = max_row_clues; j > 0; j--) {
+            if (size >= j) {
+                printf("%d ", row_clues->at(i)->at(size - j));
+            } else {
+                printf("  ");
+            }
+        }
         printf("|");
+        // Print board
         for (int j = 0; j < size; j++) {
             printf("%c ", rows->at(i)->at(j));
         }
