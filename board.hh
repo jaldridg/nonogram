@@ -29,6 +29,8 @@ struct Board {
     void clear();
 
     void print();
+
+    void setTileRange(Line * line, std::pair<int, int> ids, Tilestate state);
 };
 
 #endif

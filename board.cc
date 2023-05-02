@@ -1,6 +1,8 @@
 
 #include <stdio.h>
 #include <string>
+#include <assert.h>
+
 #include "board.hh"
 
 Board::Board(int size) {
@@ -25,21 +27,12 @@ Board::Board(int size) {
         // Fill in clues
         std::vector<int> * rc = new std::vector<int>();
         std::vector<int> * cc = new std::vector<int>();
-        if (i == 2 || i == 4) {
-            rc->push_back(1);
-            cc->push_back(1);
+        if (i == 1) {
             rc->push_back(3);
             cc->push_back(3);
-        } else if (i == 1) {
-            rc->push_back(1);
-            cc->push_back(1);
-            rc->push_back(1);
-            cc->push_back(1);
-            rc->push_back(1);
-            cc->push_back(1);
         } else {
-            rc->push_back(5);
-            cc->push_back(5);
+            rc->push_back(1);
+            cc->push_back(1);
         }
         row_clues->push_back(rc);
         col_clues->push_back(cc);
@@ -118,5 +111,14 @@ void Board::print() {
             printf("%c ", rows->at(i)->at(j));
         }
         printf("\n");
+    }
+}
+
+// Fills the line with the given state using the limits in the pair
+// The first entry is the starting index and the second entry is the stopping index
+void Board::setTileRange(Line * line, std::pair<int, int> ids, Tilestate state) {
+    assert(ids.first < ids.second);
+    for (int i = ids.first; i < ids.second; i++) {
+        line->at(i) = state;
     }
 }
