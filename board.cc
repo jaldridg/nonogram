@@ -28,7 +28,7 @@ Board::Board(int size) {
     for (int i = 0; i < size; i++) {
         Clues rc = new std::vector<int>;
         Clues cc = new std::vector<int>;
-        if (i == 1) {
+        if (i == 0) {
             rc->push_back(3);
             cc->push_back(3);
         } else {
@@ -46,8 +46,8 @@ void Board::clear() {
     for (int i = 0; i < size; i++) {
         delete[] rows[i];
         delete[] cols[i];
-        delete[] row_clues[i];
-        delete[] col_clues[i];
+        delete row_clues[i];
+        delete col_clues[i];
     }
     delete[] rows;
     delete[] cols;
@@ -79,9 +79,9 @@ void Board::print() {
         }
         printf(" ");
         for (int j = 0; j < size; j++) {
-            int size = col_clues[i]->size();
+            int size = col_clues[j]->size();
             if (size >= i) {
-                printf("%d ", col_clues[i]->at(size - i));
+                printf("%d ", col_clues[j]->at(size - i));
             } else {
                 printf("  ");
             }
