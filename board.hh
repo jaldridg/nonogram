@@ -12,17 +12,17 @@ enum Tilestate {
     //COL_THREE = 67
 };
 
-typedef std::vector<Tilestate> Line;
+typedef Tilestate * Line;
+typedef std::vector<int> * Clues;
 
 struct Board {
     int size;
 
-    std::vector<Line *> * rows;
-    std::vector<Line *> * cols;
+    Line * rows;
+    Line * cols;
 
-    // The hints which were given to solve the puzzle
-    std::vector<std::vector<int> *> * row_clues;
-    std::vector<std::vector<int> *> * col_clues;
+    Clues * row_clues;
+    Clues * col_clues;
 
     Board(int size);
     // The destructor since ~Board is being weird
@@ -30,7 +30,15 @@ struct Board {
 
     void print();
 
-    void setTileRange(Line * line, std::pair<int, int> ids, Tilestate state);
+    void setTileRange(Line line, std::pair<int, int> ids, Tilestate state);
+
+    int getClue(std::vector<Clues> * clues, int num, int pos) {
+        return clues->at(num)->at(pos);
+    }
+
+    void setClue(std::vector<Clues> * clues, int num, int pos, int clue) {
+        clues->at(num)->at(pos) = clue;
+    }
 };
 
 #endif

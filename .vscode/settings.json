@@ -20,6 +20,10 @@
         "xmemory": "cpp",
         "xstddef": "cpp",
         "xtr1common": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "cctype": "cpp",
+        "iosfwd": "cpp",
+        "string": "cpp",
+        "xstring": "cpp"
     }
 }

@@ -8,48 +8,51 @@
 Board::Board(int size) {
     // Initilize data structures
     Board::size = size;
-    rows = new std::vector<Line *>();
-    cols = new std::vector<Line *>();
-    row_clues = new std::vector<std::vector<int> *>();
-    col_clues = new std::vector<std::vector<int> *>();
+    rows = new Line[size];
+    cols = new Line[size];
+    row_clues = new Clues[size];
+    col_clues = new Clues[size];
 
     // Fill board with unknown tiles which must be solved
     for (int i = 0; i < size; i++) {
-        std::vector<Tilestate> * r = new std::vector<Tilestate>();
-        std::vector<Tilestate> * c = new std::vector<Tilestate>();
+        Line rl = new Tilestate[size];
+        Line cl = new Tilestate[size];
         for (int j = 0; j < size; j++) {
-            r->push_back(UNKNOWN);
-            c->push_back(UNKNOWN);
+            rl[j] = UNKNOWN;
+            cl[j] = UNKNOWN;
         }
-        rows->push_back(r);
-        cols->push_back(c);
+        rows[i] = rl;
+        cols[i] = cl;
+    }
 
-        // Fill in clues
-        std::vector<int> * rc = new std::vector<int>();
-        std::vector<int> * cc = new std::vector<int>();
+    for (int i = 0; i < size; i++) {
+        Clues rc = new std::vector<int>;
+        Clues cc = new std::vector<int>;
         if (i == 1) {
             rc->push_back(3);
             cc->push_back(3);
         } else {
             rc->push_back(1);
             cc->push_back(1);
+            rc->push_back(1);
+            cc->push_back(1);
         }
-        row_clues->push_back(rc);
-        col_clues->push_back(cc);
+        row_clues[i] = rc;
+        col_clues[i] = cc;
     }
 }
 
 void Board::clear() {
     for (int i = 0; i < size; i++) {
-        delete rows->at(i);
-        delete cols->at(i);
-        delete row_clues->at(i);
-        delete col_clues->at(i);
+        delete[] rows[i];
+        delete[] cols[i];
+        delete[] row_clues[i];
+        delete[] col_clues[i];
     }
-    delete rows;
-    delete cols;
-    delete row_clues;
-    delete col_clues;
+    delete[] rows;
+    delete[] cols;
+    delete[] row_clues;
+    delete[] col_clues;
 }
 
 void Board::print() {
@@ -57,11 +60,11 @@ void Board::print() {
     int max_row_clues = 0;
     int max_col_clues = 0;
     for (int i = 0; i < size; i++) {
-        int row_size = row_clues->at(i)->size();
+        int row_size = row_clues[i]->size();
         if (row_size > max_row_clues) {
             max_row_clues = row_size;
         }
-        int col_size = col_clues->at(i)->size();
+        int col_size = col_clues[i]->size();
         if (col_size > max_col_clues) {
             max_col_clues = col_size;
         }
@@ -76,9 +79,9 @@ void Board::print() {
         }
         printf(" ");
         for (int j = 0; j < size; j++) {
-            int size = col_clues->at(j)->size();
+            int size = col_clues[i]->size();
             if (size >= i) {
-                printf("%d ", col_clues->at(j)->at(size - i));
+                printf("%d ", col_clues[i]->at(size - i));
             } else {
                 printf("  ");
             }
@@ -97,10 +100,10 @@ void Board::print() {
     printf("\n");
     for (int i = 0; i < size; i++) {
         // Print clues
-        int size = row_clues->at(i)->size();
+        int size = row_clues[i]->size();
         for (int j = max_row_clues; j > 0; j--) {
             if (size >= j) {
-                printf("%d ", row_clues->at(i)->at(size - j));
+                printf("%d ", row_clues[i]->at(size - j));
             } else {
                 printf("  ");
             }
@@ -108,7 +111,7 @@ void Board::print() {
         printf("|");
         // Print board
         for (int j = 0; j < size; j++) {
-            printf("%c ", rows->at(i)->at(j));
+            printf("%c ", rows[i][j]);
         }
         printf("\n");
     }
@@ -116,9 +119,9 @@ void Board::print() {
 
 // Fills the line with the given state using the limits in the pair
 // The first entry is the starting index and the second entry is the stopping index
-void Board::setTileRange(Line * line, std::pair<int, int> ids, Tilestate state) {
+void Board::setTileRange(Line line, std::pair<int, int> ids, Tilestate state) {
     assert(ids.first < ids.second);
     for (int i = ids.first; i < ids.second; i++) {
-        line->at(i) = state;
+        line[i] = state;
     }
 }
