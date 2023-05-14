@@ -64,10 +64,12 @@ void Board::print() {
         if (row_size > max_row_clues) {
             max_row_clues = row_size;
         }
+        printf("row loc: %d\n", rows[i]);
         int col_size = col_clues[i]->size();
         if (col_size > max_col_clues) {
             max_col_clues = col_size;
         }
+        printf("col loc: %d\n", cols[i]);
     }
 
 
@@ -111,7 +113,7 @@ void Board::print() {
         printf("|");
         // Print board
         for (int j = 0; j < size; j++) {
-            printf("%c ", rows[i][j]);
+            printf("%c ", rows[j][i]);
         }
         printf("\n");
     }

@@ -6,3 +6,28 @@ Test cases in order of complexity when given an nxn board:
 - Fill board when given region r and region m such that r + m + 1 = n
     In other words, two regions and their gap fills up the row 
 - Expand previous step for any number of regions
+
+
+Bug fixing
+
+line
+range : (2, 5)
+state: FILLED
+
+_ _ _ _ _ _ _ _ _
+0 1 2 3 4 5 6 7 8
+
+_ _ F F F F _ _ _
+0 1 2 3 4 5 6 7 8
+
+if line is row x or col x
+line[r] = row[x][r] = col[r][x]
+where r is a number in our range
+
+rows/cols will be arrays of pointers so if the pointer to the line is within the first or last pointer in one of the arrays, you can tell if the line is a actually a row or column
+
+
+TODO
+- Write method which tells us whether a line is a row or a column
+- Use above method to get row/col number
+- Run the conversion so we can also set the rows/cols to also have the filled tiles
