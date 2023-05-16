@@ -123,6 +123,28 @@ void Board::print() {
 // The first entry is the starting index and the second entry is the stopping index
 void Board::setTileRange(Line line, std::pair<int, int> ids, Tilestate state) {
     assert(ids.first < ids.second);
+
+    // Determine whether line is from rows or cols by comparing addresses
+    printf("line: %d\n", line);
+    for (int i = 0; i < size; i++) {
+        printf("row[%d]: %d\n", i, rows[i]);        
+    }
+    bool from_rows = (line >= *rows) && (line <= rows[size - 1]);
+    if (from_rows) {
+        // Edit each column affected
+        int col_pos = (line - *rows) - sizeof(Line *);
+        for (int i = ids.first; i < ids.second; i++) {
+            cols[i][col_pos] = state;
+        }
+    } else {
+        // Edit each row affected
+        int row_pos = (line - *rows) - sizeof(Line *);
+        for (int i = ids.first; i < ids.second; i++) {
+            rows[i][row_pos] = state;
+        }
+    }
+
+    // Set the range in the line
     for (int i = ids.first; i < ids.second; i++) {
         line[i] = state;
     }
