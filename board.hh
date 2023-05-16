@@ -32,6 +32,8 @@ struct Board {
 
     void setTileRange(Line line, std::pair<int, int> ids, Tilestate state);
 
+    bool isRow(Line line);
+
     int getClue(std::vector<Clues> * clues, int num, int pos) {
         return clues->at(num)->at(pos);
     }

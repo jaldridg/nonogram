@@ -20,7 +20,6 @@ void Algo::run() {
         lineinfo li = queue.back();
         Line state = li.first;
         std::vector<int> * clues = li.second;
-        printf("state loc: %d\n", state);
         // Super hard coded clue == n
         if (clues->size() == 1 && clues->at(0) == board->size) {
             board->setTileRange(state, std::make_pair(0, board->size), FILLED);
