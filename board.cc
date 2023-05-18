@@ -28,9 +28,9 @@ Board::Board(int size) {
     for (int i = 0; i < size; i++) {
         Clues rc = new std::vector<int>;
         Clues cc = new std::vector<int>;
-        if (i == 0) {
-            rc->push_back(2);
-            cc->push_back(2);
+        if (i == 1) {
+            rc->push_back(5);
+            cc->push_back(5);
         } else {
             rc->push_back(1);
             cc->push_back(1);
@@ -98,10 +98,10 @@ void Board::print() {
     printf("\n");
     for (int i = 0; i < size; i++) {
         // Print clues
-        int size = row_clues[i]->size();
+        int len = row_clues[i]->size();
         for (int j = max_row_clues; j > 0; j--) {
-            if (size >= j) {
-                printf("%d ", row_clues[i]->at(size - j));
+            if (len >= j) {
+                printf("%d ", row_clues[i]->at(len - j));
             } else {
                 printf("  ");
             }
@@ -113,18 +113,6 @@ void Board::print() {
         }
         printf("\n");
     }
-
-    printf("\nTesting\n");
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            printf("rows[%d][%d]: [%c]\n", i, j, rows[i][j]);
-        }   
-    }
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            printf("cols[%d][%d]: [%c]\n", i, j, cols[i][j]);
-        }   
-    }
 }
 
 // Fills the line with the given state using the limits in the pair
@@ -132,19 +120,17 @@ void Board::print() {
 void Board::setTileRange(Line line, std::pair<int, int> ids, Tilestate state) {
     assert(ids.first < ids.second);
 
-    if (isRow(line)) {
+    int col_num = getColNumber(line);
+    if (col_num < 0) {
         // Edit each column affected
-        // TODO: This doesn't work since the addresses are not adjacent; we need to get col number
-        int col_pos = (line - *cols) - sizeof(Line *);
+        int row_num = getRowNumber(line);
         for (int i = ids.first; i < ids.second; i++) {
-            cols[i][col_pos] = state;
+            cols[i][row_num] = state;
         }
     } else {
         // Edit each row affected
-        // TODO: This doesn't work since the addresses are not adjacent; we need to get row number
-        int row_pos = (line - *rows) - sizeof(Line *);
         for (int i = ids.first; i < ids.second; i++) {
-            rows[i][row_pos] = state;
+            rows[i][col_num] = state;
         }
     }
 
@@ -154,12 +140,24 @@ void Board::setTileRange(Line line, std::pair<int, int> ids, Tilestate state) {
     }
 }
 
-bool Board::isRow(Line line) {
+// Gets the row number of a line, returning -1 if it's not a row
+int Board::getRowNumber(Line line) {
     // Search through the dynamically allocated addresses to see if there's a match
     for (int i = 0; i < size; i++) {
         if (line == rows[i]) {
-            return true;
+            return i;
         }
     }
-    return false;
+    return -1;
+}
+
+// Gets the colu,n number of a line, returning -1 if it's not a column
+int Board::getColNumber(Line line) {
+    // Search through the dynamically allocated addresses to see if there's a match
+    for (int i = 0; i < size; i++) {
+        if (line == cols[i]) {
+            return i;
+        }
+    }
+    return -1;
 }
