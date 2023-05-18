@@ -24,6 +24,12 @@
         "cctype": "cpp",
         "iosfwd": "cpp",
         "string": "cpp",
-        "xstring": "cpp"
+        "xstring": "cpp",
+        "queue": "cpp",
+        "algorithm": "cpp",
+        "deque": "cpp",
+        "iterator": "cpp",
+        "ranges": "cpp",
+        "span": "cpp"
     }
 }
