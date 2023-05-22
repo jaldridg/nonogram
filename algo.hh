@@ -13,8 +13,11 @@ public:
 
 private:
     Board * board;
-
-    typedef std::pair<Line, Clues> lineinfo;
+    
+    struct lineinfo {
+        Line line;
+        Clues clues;
+    };
 
     // A queue of the pointers of the rows/cols which need to be analyzed next
     std::queue<lineinfo> queue;

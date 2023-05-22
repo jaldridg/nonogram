@@ -11,9 +11,13 @@ Algo::Algo(Board * board) {
 void Algo::run() {
     // Fill the queue with all rows and cols
     for(int i = 0; i < board->size; i++) {
-        lineinfo row_li = lineinfo(std::make_pair(board->rows[i], board->row_clues[i]));
+        lineinfo row_li;
+        row_li.line = board->rows[i];
+        row_li.clues = board->row_clues[i];
         queue.push(row_li);
-        lineinfo col_li = lineinfo(std::make_pair(board->cols[i], board->col_clues[i]));
+        lineinfo col_li;
+        col_li.line = board->cols[i];
+        col_li.clues = board->col_clues[i];
         queue.push(col_li);
     }
     
@@ -24,7 +28,7 @@ void Algo::run() {
 
         queue.pop();
         // Move line to back if line is still imcomplete to wait for more clues
-        if (!board->isLineSolved(li.first)) {
+        if (!board->isLineSolved(li.line)) {
             queue.push(li);
         }
 
@@ -38,8 +42,8 @@ void Algo::run() {
 }
 
 void Algo::runCertaintyRules(lineinfo li) {
-    Line state = li.first;
-    std::vector<int> * clues = li.second;
+    Line state = li.line;
+    std::vector<int> * clues = li.clues;
 
     // Level 1: One block of size / 2 + 1 is in the line
     if (clues->size() == 1 && clues->at(0) > board->size / 2) {
