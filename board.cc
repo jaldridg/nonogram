@@ -28,8 +28,75 @@ Board::Board(int size) {
     for (int i = 0; i < size; i++) {
         Clues rc = new std::vector<int>;
         Clues cc = new std::vector<int>;
-        rc->push_back(i + 1);
-        cc->push_back(i + 1);
+        if (i == 0) {
+            rc->push_back(5);
+            rc->push_back(5);
+            cc->push_back(3);
+        } else if (i == 1) {
+            rc->push_back(11);
+            cc->push_back(4);
+        } else if (i == 2) {
+            rc->push_back(7);
+            cc->push_back(3);
+            cc->push_back(6);
+        } else if (i == 3) {
+            rc->push_back(5);
+            rc->push_back(3);
+            cc->push_back(1);
+            cc->push_back(3);
+            cc->push_back(5);
+        } else if (i == 4) {
+            rc->push_back(6);
+            rc->push_back(3);
+            cc->push_back(2);
+            cc->push_back(3);
+            cc->push_back(4);
+        } else if (i == 5) {
+            rc->push_back(8);
+            rc->push_back(3);
+            cc->push_back(2);
+            cc->push_back(6);
+        } else if (i == 6) {
+            rc->push_back(1);
+            rc->push_back(6);
+            rc->push_back(3);
+            cc->push_back(8);
+        } else if (i == 7) {
+            rc->push_back(8);
+            rc->push_back(2);
+            cc->push_back(8);
+        } else if (i == 8) {
+            rc->push_back(3);
+            rc->push_back(3);
+            rc->push_back(1);
+            cc->push_back(3);
+            cc->push_back(3);
+        } else if (i == 9) {
+            rc->push_back(3);
+            rc->push_back(2);
+            cc->push_back(2);
+            cc->push_back(6);
+        } else if (i == 10) {
+            rc->push_back(3);
+            rc->push_back(1);
+            cc->push_back(3);
+            cc->push_back(4);
+        } else if (i == 11) {
+            rc->push_back(3);
+            cc->push_back(4);
+            cc->push_back(2);
+        } else if (i == 12) {
+            rc->push_back(4);
+            cc->push_back(7);
+        } else if (i == 13) {
+            rc->push_back(3);
+            cc->push_back(2);
+            cc->push_back(5);
+        } else if (i == 14) {
+            rc->push_back(3);
+            cc->push_back(1);
+            cc->push_back(5);
+        }
         row_clues[i] = rc;
         col_clues[i] = cc;
     }
@@ -112,7 +179,7 @@ void Board::print() {
 
 // Fills the line with the given state using the limits in the pair
 // The first entry is the starting index and the second entry is the stopping index
-void Board::setTileRange(Line line, std::pair<int, int_fast32_t> ids, Tilestate state) {
+void Board::setTileRange(Line line, std::pair<int, int> ids, Tilestate state) {
     assert(ids.first <= ids.second);
 
     int col_num = getColNumber(line);

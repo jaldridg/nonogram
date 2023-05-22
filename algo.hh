@@ -13,10 +13,11 @@ public:
 
 private:
     Board * board;
-    
+
     struct lineinfo {
         Line line;
         Clues clues;
+        int unknown_tiles;
     };
 
     // A queue of the pointers of the rows/cols which need to be analyzed next

@@ -42,14 +42,13 @@ void Algo::run() {
 }
 
 void Algo::runCertaintyRules(lineinfo li) {
-    Line state = li.line;
     std::vector<int> * clues = li.clues;
 
-    // Level 1: One block of size / 2 + 1 is in the line
+    // Level 1: One block of over (size / 2) is in the line
     if (clues->size() == 1 && clues->at(0) > board->size / 2) {
         int edge_uncertainty = board->size - clues->at(0);
         int lower_limit = edge_uncertainty;
         int upper_limit = board->size - 1 - edge_uncertainty;
-        board->setTileRange(state, std::make_pair(lower_limit, upper_limit), FILLED);
+        board->setTileRange(li.line, std::make_pair(lower_limit, upper_limit), FILLED);
     }
 }
