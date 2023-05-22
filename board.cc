@@ -29,73 +29,41 @@ Board::Board(int size) {
         Clues rc = new std::vector<int>;
         Clues cc = new std::vector<int>;
         if (i == 0) {
-            rc->push_back(5);
-            rc->push_back(5);
-            cc->push_back(3);
+            rc->push_back(4);
+            cc->push_back(4);
         } else if (i == 1) {
-            rc->push_back(11);
-            cc->push_back(4);
+            rc->push_back(6);
+            cc->push_back(6);
         } else if (i == 2) {
-            rc->push_back(7);
-            cc->push_back(3);
-            cc->push_back(6);
-        } else if (i == 3) {
+            rc->push_back(2);
             rc->push_back(5);
-            rc->push_back(3);
-            cc->push_back(1);
-            cc->push_back(3);
-            cc->push_back(5);
-        } else if (i == 4) {
-            rc->push_back(6);
-            rc->push_back(3);
-            cc->push_back(2);
             cc->push_back(3);
             cc->push_back(4);
-        } else if (i == 5) {
-            rc->push_back(8);
-            rc->push_back(3);
+        } else if (i == 3) {
+            rc->push_back(10);
             cc->push_back(2);
-            cc->push_back(6);
-        } else if (i == 6) {
+            cc->push_back(7);
+        } else if (i == 4) {
+            rc->push_back(2);
             rc->push_back(1);
-            rc->push_back(6);
-            rc->push_back(3);
-            cc->push_back(8);
+            rc->push_back(5);
+            cc->push_back(4);
+            cc->push_back(5);
+        } else if (i == 5) {
+            rc->push_back(10);
+            cc->push_back(10);
+        } else if (i == 6) {
+            rc->push_back(10);
+            cc->push_back(10);
         } else if (i == 7) {
             rc->push_back(8);
-            rc->push_back(2);
             cc->push_back(8);
         } else if (i == 8) {
-            rc->push_back(3);
-            rc->push_back(3);
-            rc->push_back(1);
-            cc->push_back(3);
-            cc->push_back(3);
-        } else if (i == 9) {
-            rc->push_back(3);
-            rc->push_back(2);
-            cc->push_back(2);
+            rc->push_back(6);
             cc->push_back(6);
-        } else if (i == 10) {
-            rc->push_back(3);
-            rc->push_back(1);
-            cc->push_back(3);
-            cc->push_back(4);
-        } else if (i == 11) {
-            rc->push_back(3);
-            cc->push_back(4);
-            cc->push_back(2);
-        } else if (i == 12) {
+        } else if (i == 9) {
             rc->push_back(4);
-            cc->push_back(7);
-        } else if (i == 13) {
-            rc->push_back(3);
-            cc->push_back(2);
-            cc->push_back(5);
-        } else if (i == 14) {
-            rc->push_back(3);
-            cc->push_back(1);
-            cc->push_back(5);
+            cc->push_back(4);
         }
         row_clues[i] = rc;
         col_clues[i] = cc;
@@ -141,7 +109,7 @@ void Board::print() {
         for (int j = 0; j < size; j++) {
             int size = col_clues[j]->size();
             if (size >= i) {
-                printf("%d ", col_clues[j]->at(size - i));
+                printf("%x ", col_clues[j]->at(size - i));
             } else {
                 printf("  ");
             }
@@ -163,7 +131,7 @@ void Board::print() {
         int len = row_clues[i]->size();
         for (int j = max_row_clues; j > 0; j--) {
             if (len >= j) {
-                printf("%d ", row_clues[i]->at(len - j));
+                printf("%x ", row_clues[i]->at(len - j));
             } else {
                 printf("  ");
             }

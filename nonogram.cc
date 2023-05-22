@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 int main() {
-    Board b = Board(15);
+    Board b = Board(10);
     Algo algo = Algo(&b);
     algo.run();
     b.print();
