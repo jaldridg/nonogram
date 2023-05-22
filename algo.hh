@@ -18,6 +18,8 @@ private:
 
     // A queue of the pointers of the rows/cols which need to be analyzed next
     std::queue<lineinfo> queue;
+
+    void runCertaintyRules(lineinfo li);
 };
 
 #endif

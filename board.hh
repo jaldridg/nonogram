@@ -35,6 +35,8 @@ struct Board {
     int getRowNumber(Line line);
     int getColNumber(Line line);
 
+    bool isLineSolved(Line line);
+
     int getClue(std::vector<Clues> * clues, int num, int pos) {
         return clues->at(num)->at(pos);
     }

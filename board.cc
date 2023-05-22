@@ -28,13 +28,8 @@ Board::Board(int size) {
     for (int i = 0; i < size; i++) {
         Clues rc = new std::vector<int>;
         Clues cc = new std::vector<int>;
-        if (i == 1) {
-            rc->push_back(5);
-            cc->push_back(5);
-        } else {
-            rc->push_back(1);
-            cc->push_back(1);
-        }
+        rc->push_back(i + 1);
+        cc->push_back(i + 1);
         row_clues[i] = rc;
         col_clues[i] = cc;
     }
@@ -117,25 +112,25 @@ void Board::print() {
 
 // Fills the line with the given state using the limits in the pair
 // The first entry is the starting index and the second entry is the stopping index
-void Board::setTileRange(Line line, std::pair<int, int> ids, Tilestate state) {
-    assert(ids.first < ids.second);
+void Board::setTileRange(Line line, std::pair<int, int_fast32_t> ids, Tilestate state) {
+    assert(ids.first <= ids.second);
 
     int col_num = getColNumber(line);
     if (col_num < 0) {
         // Edit each column affected
         int row_num = getRowNumber(line);
-        for (int i = ids.first; i < ids.second; i++) {
+        for (int i = ids.first; i <= ids.second; i++) {
             cols[i][row_num] = state;
         }
     } else {
         // Edit each row affected
-        for (int i = ids.first; i < ids.second; i++) {
+        for (int i = ids.first; i <= ids.second; i++) {
             rows[i][col_num] = state;
         }
     }
 
     // Set the range in the line
-    for (int i = ids.first; i < ids.second; i++) {
+    for (int i = ids.first; i <= ids.second; i++) {
         line[i] = state;
     }
 }
@@ -160,4 +155,13 @@ int Board::getColNumber(Line line) {
         }
     }
     return -1;
+}
+
+bool Board::isLineSolved(Line line) {
+    for (int i = 0; i < size; i++) {
+        if (line[i] == UNKNOWN) {
+            return false;
+        }
+    }
+    return true;
 }
