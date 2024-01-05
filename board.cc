@@ -8,21 +8,36 @@
 Board::Board(int size) {
     // Initilize data structures
     Board::size = size;
-    rows = new Line[size];
-    cols = new Line[size];
-    row_clues = new Clues[size];
-    col_clues = new Clues[size];
+
+    rows = new line[size];
+    cols = new line[size];
+
+    Clues row_clues = new std::vector<int>;
+    Clues col_clues = new std::vector<int>;
+
+    // Initialize default line values
+    for (int i = 0; i < size; i++) {
+        rows[i].filled_tiles = 0;
+        rows[i].unknown_tiles = size;
+        rows[i].line_number = i;
+        rows[i].is_row = true;
+
+        cols[i].filled_tiles = 0;
+        cols[i].unknown_tiles = size;
+        cols[i].line_number = i;
+        cols[i].is_row = false;
+    }
 
     // Fill board with unknown tiles which must be solved
     for (int i = 0; i < size; i++) {
-        Line rl = new Tilestate[size];
-        Line cl = new Tilestate[size];
+        Tiles row_tiles = new Tilestate[size];
+        Tiles col_tiles = new Tilestate[size];
         for (int j = 0; j < size; j++) {
-            rl[j] = UNKNOWN;
-            cl[j] = UNKNOWN;
+            row_tiles[j] = UNKNOWN;
+            col_tiles[j] = UNKNOWN;
         }
-        rows[i] = rl;
-        cols[i] = cl;
+        rows[i].tiles = row_tiles;
+        cols[i].tiles = col_tiles;
     }
 
     for (int i = 0; i < size; i++) {
@@ -65,22 +80,20 @@ Board::Board(int size) {
             rc->push_back(4);
             cc->push_back(4);
         }
-        row_clues[i] = rc;
-        col_clues[i] = cc;
+        rows[i].clues = rc;
+        cols[i].clues = cc;
     }
 }
 
 void Board::clear() {
     for (int i = 0; i < size; i++) {
-        delete[] rows[i];
-        delete[] cols[i];
-        delete row_clues[i];
-        delete col_clues[i];
+        delete[] rows[i].tiles;
+        delete[] cols[i].tiles;
+        delete rows[i].clues;
+        delete cols[i].clues;
     }
     delete[] rows;
     delete[] cols;
-    delete[] row_clues;
-    delete[] col_clues;
 }
 
 void Board::print() {
@@ -88,11 +101,11 @@ void Board::print() {
     int max_row_clues = 0;
     int max_col_clues = 0;
     for (int i = 0; i < size; i++) {
-        int row_size = row_clues[i]->size();
+        int row_size = rows[i].clues->size();
         if (row_size > max_row_clues) {
             max_row_clues = row_size;
         }
-        int col_size = col_clues[i]->size();
+        int col_size = cols[i].clues->size();
         if (col_size > max_col_clues) {
             max_col_clues = col_size;
         }
@@ -107,9 +120,9 @@ void Board::print() {
         }
         printf(" ");
         for (int j = 0; j < size; j++) {
-            int size = col_clues[j]->size();
+            int size = cols[j].clues->size();
             if (size >= i) {
-                printf("%x ", col_clues[j]->at(size - i));
+                printf("%x ", cols[j].clues->at(size - i));
             } else {
                 printf("  ");
             }
@@ -128,10 +141,10 @@ void Board::print() {
     printf("\n");
     for (int i = 0; i < size; i++) {
         // Print clues
-        int len = row_clues[i]->size();
+        int len = rows[i].clues->size();
         for (int j = max_row_clues; j > 0; j--) {
             if (len >= j) {
-                printf("%x ", row_clues[i]->at(len - j));
+                printf("%x ", rows[i].clues->at(len - j));
             } else {
                 printf("  ");
             }
@@ -139,7 +152,7 @@ void Board::print() {
         printf("|");
         // Print board
         for (int j = 0; j < size; j++) {
-            printf("%c ", rows[i][j]);
+            printf("%c ", rows[i].tiles[j]);
         }
         printf("\n");
     }
@@ -147,56 +160,23 @@ void Board::print() {
 
 // Fills the line with the given state using the limits in the pair
 // The first entry is the starting index and the second entry is the stopping index
-void Board::setTileRange(Line line, std::pair<int, int> ids, Tilestate state) {
+void Board::setTileRange(line line, std::pair<int, int> ids, Tilestate state) {
     assert(ids.first <= ids.second);
 
-    int col_num = getColNumber(line);
-    if (col_num < 0) {
+    if (line.is_row) {
         // Edit each column affected
-        int row_num = getRowNumber(line);
         for (int i = ids.first; i <= ids.second; i++) {
-            cols[i][row_num] = state;
+            cols[i].tiles[line.line_number] = state;
         }
     } else {
         // Edit each row affected
         for (int i = ids.first; i <= ids.second; i++) {
-            rows[i][col_num] = state;
+            rows[i].tiles[line.line_number] = state;
         }
     }
 
     // Set the range in the line
     for (int i = ids.first; i <= ids.second; i++) {
-        line[i] = state;
+        line.tiles[i] = state;
     }
-}
-
-// Gets the row number of a line, returning -1 if it's not a row
-int Board::getRowNumber(Line line) {
-    // Search through the dynamically allocated addresses to see if there's a match
-    for (int i = 0; i < size; i++) {
-        if (line == rows[i]) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-// Gets the colu,n number of a line, returning -1 if it's not a column
-int Board::getColNumber(Line line) {
-    // Search through the dynamically allocated addresses to see if there's a match
-    for (int i = 0; i < size; i++) {
-        if (line == cols[i]) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-bool Board::isLineSolved(Line line) {
-    for (int i = 0; i < size; i++) {
-        if (line[i] == UNKNOWN) {
-            return false;
-        }
-    }
-    return true;
 }
