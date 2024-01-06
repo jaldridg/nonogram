@@ -11,18 +11,18 @@ Algo::Algo(Board * board) {
 void Algo::run() {
     // Fill the queue with all rows and cols
     for(int i = 0; i < board->size; i++) {
-        queue.push(board->rows[i]);
-        queue.push(board->cols[i]);
+        queue.push(board->rows + i);
+        queue.push(board->cols + i);
     }
     
-    int step_limit = 1000; 
+    int step_limit = 20;
     while (queue.size() != 0) {
-        line l = queue.front();
+        line * l = queue.front();
         runCertaintyRules(l);
 
         queue.pop();
-        // Move line to back if line is still imcomplete to wait for more clues
-        if (l.unknown_tiles != 0) {
+        // Move line to back if line is still incomplete to wait for more clues
+        if (l->unknown_tiles > 0) {
             queue.push(l);
         }
 
@@ -35,8 +35,8 @@ void Algo::run() {
     }
 }
 
-void Algo::runCertaintyRules(line li) {
-    std::vector<int> * clues = li.clues;
+void Algo::runCertaintyRules(line * li) {
+    std::vector<int> * clues = li->clues;
 
     // Run certainty rules on each block in a line based 
     // on the space taken by blocks before and after

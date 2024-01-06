@@ -36,7 +36,7 @@ struct Board {
 
     void print();
 
-    void setTileRange(line line, std::pair<int, int> ids, Tilestate state);
+    void setTileRange(line * line, std::pair<int, int> ids, Tilestate state);
 
     int getClue(std::vector<Clues> * clues, int num, int pos) {
         return clues->at(num)->at(pos);

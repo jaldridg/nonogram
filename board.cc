@@ -160,23 +160,37 @@ void Board::print() {
 
 // Fills the line with the given state using the limits in the pair
 // The first entry is the starting index and the second entry is the stopping index
-void Board::setTileRange(line line, std::pair<int, int> ids, Tilestate state) {
+void Board::setTileRange(line * line, std::pair<int, int> ids, Tilestate state) {
     assert(ids.first <= ids.second);
 
-    if (line.is_row) {
+    if (line->is_row) {
         // Edit each column affected
         for (int i = ids.first; i <= ids.second; i++) {
-            cols[i].tiles[line.line_number] = state;
+            if (cols[i].tiles[line->line_number] != state) {
+                cols[i].tiles[line->line_number] = state;
+                cols[i].unknown_tiles--;
+                cols[i].filled_tiles++;
+            }
         }
     } else {
         // Edit each row affected
         for (int i = ids.first; i <= ids.second; i++) {
-            rows[i].tiles[line.line_number] = state;
+            if (rows[i].tiles[line->line_number] != state) {
+                rows[i].tiles[line->line_number] = state;
+                rows[i].unknown_tiles--;
+                rows[i].filled_tiles++;
+            }
         }
     }
 
     // Set the range in the line
+    int diff_count = 0;
     for (int i = ids.first; i <= ids.second; i++) {
-        line.tiles[i] = state;
+        if (line->tiles[i] != state) {
+            line->tiles[i] = state;
+            diff_count++;
+        }
     }
+    line->unknown_tiles -= diff_count;
+    line->filled_tiles += diff_count;
 }
