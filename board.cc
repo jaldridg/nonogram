@@ -4,8 +4,10 @@
 #include <assert.h>
 
 #include "board.hh"
+#include "board_reader.hh"
 
 Board::Board(int size) {
+
     // Initilize data structures
     Board::size = size;
 

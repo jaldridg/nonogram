@@ -10,6 +10,7 @@
                 "-g",
                 "-c",
                 "board.cc",
+                "board_reader.cc",
                 "algo.cc",
                 "nonogram.cc"
             ],
@@ -31,6 +32,7 @@
                 "-o",
                 "${fileDirname}\\nonogram.exe",
                 "board.o",
+                "board_reader.o",
                 "algo.o",
                 "nonogram.o"
             ],

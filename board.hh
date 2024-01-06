@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "board_reader.hh"
+
 enum Tilestate {
     UNKNOWN = 32,
     NONE = 88,
@@ -25,6 +27,8 @@ struct line {
 };
 
 struct Board {
+    BoardReader reader;
+    
     int size;
 
     line * rows;
