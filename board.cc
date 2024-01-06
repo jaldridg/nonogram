@@ -6,9 +6,11 @@
 #include "board.hh"
 #include "board_reader.hh"
 
-Board::Board(int size) {
+Board::Board() {
+    BoardReader reader;
+
     // Initilize data structures
-    Board::size = size;
+    size = reader.col_clues.size();
 
     rows = new line[size];
     cols = new line[size];

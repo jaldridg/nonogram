@@ -1,12 +1,10 @@
-
 #include "nonogram.hh"
 #include "board.hh"
+#include "board_reader.hh"
 #include "algo.hh"
 
-#include <stdio.h>
-
 int main() {
-    Board b = Board(10);
+    Board b = Board();
     Algo algo = Algo(&b);
     algo.run();
     b.print();

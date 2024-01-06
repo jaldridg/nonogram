@@ -3,8 +3,6 @@
 
 #include <vector>
 
-#include "board_reader.hh"
-
 enum Tilestate {
     UNKNOWN = 32,
     NONE = 88,
@@ -26,15 +24,14 @@ struct line {
     bool is_row;
 };
 
-struct Board {
-    BoardReader reader;
-    
+class Board {
+public:
     int size;
 
     line * rows;
     line * cols;
 
-    Board(int size);
+    Board();
     // The destructor since ~Board is being weird
     void clear();
 
@@ -49,6 +46,9 @@ struct Board {
     void setClue(std::vector<Clues> * clues, int num, int pos, int clue) {
         clues->at(num)->at(pos) = clue;
     }
+
+private:
+
 };
 
 #endif

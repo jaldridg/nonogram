@@ -78,26 +78,6 @@ BoardReader::BoardReader() {
         i++;
     }
 
-    
-    printf("clue size: %d\n", col_clues.size());
-    printf("clues:\n");
-    for (int i = 0; i < col_clues.size(); i++) {
-        for (int j = 0; j < col_clues.at(i).size(); j++) {
-            printf("%d ", col_clues.at(i).at(j));
-        }
-        printf("\n");
-    }
-
-    
-    printf("clue size: %d\n", row_clues.size());
-    printf("clues:\n");
-    for (int i = 0; i < row_clues.size(); i++) {
-        for (int j = 0; j < row_clues.at(i).size(); j++) {
-            printf("%d ", row_clues.at(i).at(j));
-        }
-        printf("\n");
-    }
-
     delete clue_buffer;
     assert(row_clues.size() == col_clues.size());
 }
