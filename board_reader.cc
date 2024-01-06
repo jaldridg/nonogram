@@ -1,7 +1,6 @@
 #include "board_reader.hh"
 
-#include <iostream>
-#include <fstream>
+#include <assert.h>
 #include <vector>
 
 BoardReader::BoardReader() {
@@ -25,19 +24,18 @@ BoardReader::BoardReader() {
     char * clue_buffer = new char[3];
     // Parse columns
     while (true) {
-        // Stop: end of columns
-        if (buffer[i] == 10) {
-            clues.push_back(atoi(clue_buffer));
-            col_clues.push_back(clues);
-            j = 0;
-            break; 
-
         // End of column
-        } else if (buffer[i] == ' ') {
+        if (buffer[i] == ' ' || buffer[i] == 10) {
             clues.push_back(atoi(clue_buffer));
             col_clues.push_back(clues);
             clues = {};
             j = 0;
+            
+            // End of all columns
+            if (buffer[i] == 10) { 
+                i++;
+                break; 
+            }
 
         // End of clue
         } else if (buffer[i] == ',') {
@@ -53,23 +51,19 @@ BoardReader::BoardReader() {
     }
 
     // Parse row clues
-    clues = {};
     clue_buffer[0] = '\0';
     clue_buffer[1] = '\0';
     clue_buffer[2] = '\0';
     while (true) {
-        // Stop: end of rows
-        if (buffer[i] == '.') {
-            clues.push_back(atoi(clue_buffer));
-            row_clues.push_back(clues);
-            break; 
-
         // End of row
-        } else if (buffer[i] == 10) {
+        if (buffer[i] == 10 || buffer[i] == '.') {
             clues.push_back(atoi(clue_buffer));
             row_clues.push_back(clues);
             clues = {};
             j = 0;
+            
+            // End of all rows
+            if (buffer[i] == '.') { break; }
 
         // End of clue
         } else if (buffer[i] == ',') {
@@ -103,4 +97,7 @@ BoardReader::BoardReader() {
         }
         printf("\n");
     }
+
+    delete clue_buffer;
+    assert(row_clues.size() == col_clues.size());
 }

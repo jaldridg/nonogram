@@ -7,7 +7,6 @@
 #include "board_reader.hh"
 
 Board::Board(int size) {
-
     // Initilize data structures
     Board::size = size;
 
@@ -42,45 +41,16 @@ Board::Board(int size) {
         cols[i].tiles = col_tiles;
     }
 
+    // Get the clues from our clue file reader
     for (int i = 0; i < size; i++) {
         Clues rc = new std::vector<int>;
         Clues cc = new std::vector<int>;
-        if (i == 0) {
-            rc->push_back(4);
-            cc->push_back(4);
-        } else if (i == 1) {
-            rc->push_back(6);
-            cc->push_back(6);
-        } else if (i == 2) {
-            rc->push_back(2);
-            rc->push_back(5);
-            cc->push_back(3);
-            cc->push_back(4);
-        } else if (i == 3) {
-            rc->push_back(10);
-            cc->push_back(2);
-            cc->push_back(7);
-        } else if (i == 4) {
-            rc->push_back(2);
-            rc->push_back(1);
-            rc->push_back(5);
-            cc->push_back(4);
-            cc->push_back(5);
-        } else if (i == 5) {
-            rc->push_back(10);
-            cc->push_back(10);
-        } else if (i == 6) {
-            rc->push_back(10);
-            cc->push_back(10);
-        } else if (i == 7) {
-            rc->push_back(8);
-            cc->push_back(8);
-        } else if (i == 8) {
-            rc->push_back(6);
-            cc->push_back(6);
-        } else if (i == 9) {
-            rc->push_back(4);
-            cc->push_back(4);
+        for (int j = 0; j < reader.row_clues.at(i).size(); j++) {
+            rc->push_back(reader.row_clues.at(i).at(j));
+        }
+        
+        for (int j = 0; j < reader.col_clues.at(i).size(); j++) {
+            cc->push_back(reader.col_clues.at(i).at(j));
         }
         rows[i].clues = rc;
         cols[i].clues = cc;
