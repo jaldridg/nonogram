@@ -63,12 +63,10 @@ void Algo::runCertaintyRules(line * li) {
             If the size of the block is at least half the size of the range,
             we can be certain that parts of the block are in some squares
         */
-        printf("i: %d, clues->at(i): %d, bsr/2: %d\n", i, clues->at(i), block_size_range / 2);
         if (clues->at(i) > block_size_range / 2) {
             int edge_uncertainty = block_size_range - clues->at(i);
             int lower_limit = size_before + edge_uncertainty;
             int upper_limit = size_before + block_size_range - 1 - edge_uncertainty;
-            printf("line #%d, row?: %d, ll: %d, ul: %d\n", li->line_number, li->is_row, lower_limit, upper_limit);
             board->setTileRange(li, std::make_pair(lower_limit, upper_limit), FILLED);
         }
     }

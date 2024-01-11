@@ -26,6 +26,7 @@ BoardReader::BoardReader() {
     while (true) {
         // End of column
         if (buffer[i] == ' ' || buffer[i] == 10) {
+            clue_buffer[j] = '\0';
             clues.push_back(atoi(clue_buffer));
             col_clues.push_back(clues);
             clues = {};
@@ -39,6 +40,7 @@ BoardReader::BoardReader() {
 
         // End of clue
         } else if (buffer[i] == ',') {
+            clue_buffer[j] = '\0';
             clues.push_back(atoi(clue_buffer));
             j = 0;
 
@@ -51,12 +53,12 @@ BoardReader::BoardReader() {
     }
 
     // Parse row clues
-    clue_buffer[0] = '\0';
+    // Reset the buffer location which may give us problems if not reset
     clue_buffer[1] = '\0';
-    clue_buffer[2] = '\0';
     while (true) {
         // End of row
         if (buffer[i] == 10 || buffer[i] == '.') {
+            clue_buffer[j] = '\0';
             clues.push_back(atoi(clue_buffer));
             row_clues.push_back(clues);
             clues = {};
@@ -67,6 +69,7 @@ BoardReader::BoardReader() {
 
         // End of clue
         } else if (buffer[i] == ',') {
+            clue_buffer[j] = '\0';
             clues.push_back(atoi(clue_buffer));
             j = 0;
 
@@ -79,5 +82,21 @@ BoardReader::BoardReader() {
     }
 
     delete clue_buffer;
+
+    // Clue printing
+    /*
+    for (int i = 0; i < row_clues.size(); i++) {
+        for (int j = 0; j < row_clues.at(i).size(); j++) {
+            printf("row clue.at(%d).at(%d): %d\n", i, j, row_clues.at(i).at(j));
+        }
+    }
+
+    for (int i = 0; i < col_clues.size(); i++) {
+        for (int j = 0; j < col_clues.at(i).size(); j++) {
+            printf("col clue.at(%d).at(%d): %d\n", i, j, col_clues.at(i).at(j));
+        }
+    }
+    */
+
     assert(row_clues.size() == col_clues.size());
 }
