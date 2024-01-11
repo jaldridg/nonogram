@@ -143,7 +143,7 @@ void Board::setTileRange(line * line, std::pair<int, int> ids, Tilestate state) 
             if (cols[i].tiles[line->line_number] != state) {
                 cols[i].tiles[line->line_number] = state;
                 cols[i].unknown_tiles--;
-                cols[i].filled_tiles++;
+                if (state == FILLED) { cols[i].filled_tiles++; }
             }
         }
     } else {
@@ -152,7 +152,7 @@ void Board::setTileRange(line * line, std::pair<int, int> ids, Tilestate state) 
             if (rows[i].tiles[line->line_number] != state) {
                 rows[i].tiles[line->line_number] = state;
                 rows[i].unknown_tiles--;
-                rows[i].filled_tiles++;
+                if (state == FILLED) { rows[i].filled_tiles++; }
             }
         }
     }
@@ -166,5 +166,27 @@ void Board::setTileRange(line * line, std::pair<int, int> ids, Tilestate state) 
         }
     }
     line->unknown_tiles -= diff_count;
-    line->filled_tiles += diff_count;
+    if (state == FILLED) { line->filled_tiles += diff_count; }
+}
+
+void Board::completeLine(line * line) {
+    if (line->is_row) {
+        for (int i = 0; i < size; i++) {
+            if (line->tiles[i] == UNKNOWN) {
+                line->tiles[i] == NONE;
+                cols[i].tiles[line->line_number] == NONE;
+                cols[i].unknown_tiles--;
+            }
+        }
+    } else {
+        for (int i = 0; i < size; i++) {
+            if (line->tiles[i] == UNKNOWN) {
+                line->tiles[i] == NONE;
+                rows[i].tiles[line->line_number] == NONE;
+                rows[i].unknown_tiles--;
+            }
+        }
+    }
+    
+    line->unknown_tiles = 0;
 }

@@ -19,6 +19,7 @@ void Algo::run() {
     while (queue.size() != 0) {
         line * l = queue.front();
         runCertaintyRules(l);
+        attemptLineCompletion(l);
 
         queue.pop();
         // Move line to back if line is still incomplete to wait for more clues
@@ -35,8 +36,8 @@ void Algo::run() {
     }
 }
 
-void Algo::runCertaintyRules(line * li) {
-    std::vector<int> * clues = li->clues;
+void Algo::runCertaintyRules(line * l) {
+    std::vector<int> * clues = l->clues;
 
     // Run certainty rules on each block in a line based 
     // on the space taken by blocks before and after
@@ -67,7 +68,20 @@ void Algo::runCertaintyRules(line * li) {
             int edge_uncertainty = block_size_range - clues->at(i);
             int lower_limit = size_before + edge_uncertainty;
             int upper_limit = size_before + block_size_range - 1 - edge_uncertainty;
-            board->setTileRange(li, std::make_pair(lower_limit, upper_limit), FILLED);
+            board->setTileRange(l, std::make_pair(lower_limit, upper_limit), FILLED);
         }
+    }
+}
+
+void Algo::attemptLineCompletion(line * l) {
+    // Find the total cells which should be filled by clues
+    int tile_total = 0;
+    for (int i = 0; i < l->clues->size(); i++) {
+        tile_total += l->clues->at(i);
+    }
+
+    // We know we're done if we've filled the number of tiles given by clues
+    if (tile_total == l->filled_tiles) {
+        board->completeLine(l);
     }
 }
