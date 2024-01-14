@@ -16,6 +16,7 @@ void Algo::run() {
     }
 
     // Do a one time certainty sweep through the puzzle
+    int total_steps = queue.size();
     for (int i = 0; i < queue.size(); i++) {
         line * l = queue.front();
         runCertaintyRule(l);
@@ -24,7 +25,6 @@ void Algo::run() {
     }
 
     // Main algorithm loop
-    int total_steps = 0;
     int no_solution_counter = 0;
     while (queue.size() != 0) {
         line * l = queue.front();
