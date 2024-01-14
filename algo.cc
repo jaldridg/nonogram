@@ -14,22 +14,33 @@ void Algo::run() {
         queue.push(board->rows + i);
         queue.push(board->cols + i);
     }
-    
-    int step_limit = 100;
+
+    // Do a one time certainty sweep through the puzzle
+    for (int i = 0; i < queue.size(); i++) {
+        line * l = queue.front();
+        attemptLineCompletion(l);
+        queue.pop();
+        queue.push(l);
+    }
+
+    // Main algorithm loop
+    int total_steps = 0;
+    int no_solution_counter = 0;
     while (queue.size() != 0) {
         line * l = queue.front();
-        runCertaintyRule(l);
-        attemptLineCompletion(l);
-
         queue.pop();
-        // Move line to back if line is still incomplete to wait for more clues
-        if (l->unknown_tiles > 0) {
+        
+        if (!attemptLineCompletion(l)) {
+            // Move line to back since it's still incomplete and wait for more clues
+            no_solution_counter++;
             queue.push(l);
+        } else {
+            no_solution_counter = 0;
         }
 
-        step_limit--;
-        if (step_limit == 0) {
-            printf("Step limit met! Stopping calculations...\n");
+        total_steps++;
+        if (no_solution_counter == queue.size()) {
+            printf("Algorithm has exhausted its techniques over %d steps!\n", total_steps);
             printf("%d lines were remaining\n", queue.size());
             return;
         }
@@ -73,7 +84,7 @@ void Algo::runCertaintyRule(line * l) {
     }
 }
 
-void Algo::attemptLineCompletion(line * l) {
+bool Algo::attemptLineCompletion(line * l) {
     // Find the total cells which should be filled by clues
     int tile_total = 0;
     for (int i = 0; i < l->clues->size(); i++) {
@@ -81,7 +92,7 @@ void Algo::attemptLineCompletion(line * l) {
     }
 
     // We know we're done if we've filled the number of tiles given by clues
-    if (tile_total == l->filled_tiles) {
-        board->completeLine(l);
-    }
+    bool done = tile_total == l->filled_tiles;
+    if (done) { board->completeLine(l); }
+    return done;
 }

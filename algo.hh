@@ -19,7 +19,7 @@ private:
 
     void runCertaintyRule(line * l);
 
-    void attemptLineCompletion(line * l);
+    bool attemptLineCompletion(line * l);
 };
 
 #endif

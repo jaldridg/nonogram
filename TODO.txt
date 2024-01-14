@@ -1,6 +1,4 @@
 Rules to implement:
-Line completion
-- Count the number of filled cells in a line and if all are filled, then set the remaining unknown cells to X
 Line growth
 - "Grow" (more like complete) chunks along edges of the board until they according to the size of the first or last clue
 Chunk connecting (advanced)
