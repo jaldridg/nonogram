@@ -18,7 +18,7 @@ void Algo::run() {
     int step_limit = 100;
     while (queue.size() != 0) {
         line * l = queue.front();
-        runCertaintyRules(l);
+        runCertaintyRule(l);
         attemptLineCompletion(l);
 
         queue.pop();
@@ -36,10 +36,10 @@ void Algo::run() {
     }
 }
 
-void Algo::runCertaintyRules(line * l) {
+void Algo::runCertaintyRule(line * l) {
     std::vector<int> * clues = l->clues;
 
-    // Run certainty rules on each block in a line based 
+    // Run certainty rule on each block in a line based 
     // on the space taken by blocks before and after
     for (int i = 0; i < clues->size(); i++) {
         // Calculate the size of blocks before current block

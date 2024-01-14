@@ -15,9 +15,6 @@ Board::Board() {
     rows = new line[size];
     cols = new line[size];
 
-    Clues row_clues = new std::vector<int>;
-    Clues col_clues = new std::vector<int>;
-
     // Initialize default line values
     for (int i = 0; i < size; i++) {
         rows[i].filled_tiles = 0;
@@ -33,14 +30,12 @@ Board::Board() {
 
     // Fill board with unknown tiles which must be solved
     for (int i = 0; i < size; i++) {
-        Tiles row_tiles = new Tilestate[size];
-        Tiles col_tiles = new Tilestate[size];
+        rows[i].tiles = new Tilestate[size];
+        cols[i].tiles = new Tilestate[size];
         for (int j = 0; j < size; j++) {
-            row_tiles[j] = UNKNOWN;
-            col_tiles[j] = UNKNOWN;
+            rows[i].tiles[j] = UNKNOWN;
+            cols[i].tiles[j] = UNKNOWN;
         }
-        rows[i].tiles = row_tiles;
-        cols[i].tiles = col_tiles;
     }
 
     // Get the clues from our clue file reader
@@ -173,16 +168,16 @@ void Board::completeLine(line * line) {
     if (line->is_row) {
         for (int i = 0; i < size; i++) {
             if (line->tiles[i] == UNKNOWN) {
-                line->tiles[i] == NONE;
-                cols[i].tiles[line->line_number] == NONE;
+                line->tiles[i] = NONE;
+                cols[i].tiles[line->line_number] = NONE;
                 cols[i].unknown_tiles--;
             }
         }
     } else {
         for (int i = 0; i < size; i++) {
             if (line->tiles[i] == UNKNOWN) {
-                line->tiles[i] == NONE;
-                rows[i].tiles[line->line_number] == NONE;
+                line->tiles[i] = NONE;
+                rows[i].tiles[line->line_number] = NONE;
                 rows[i].unknown_tiles--;
             }
         }
