@@ -18,7 +18,7 @@ void Algo::run() {
     // Do a one time certainty sweep through the puzzle
     for (int i = 0; i < queue.size(); i++) {
         line * l = queue.front();
-        attemptLineCompletion(l);
+        runCertaintyRule(l);
         queue.pop();
         queue.push(l);
     }
@@ -30,12 +30,18 @@ void Algo::run() {
         line * l = queue.front();
         queue.pop();
         
-        if (!attemptLineCompletion(l)) {
-            // Move line to back since it's still incomplete and wait for more clues
-            no_solution_counter++;
-            queue.push(l);
+        bool line_updated = false;
+        if (attemptLineCompletion(l)) {
+            line_updated = true;
         } else {
-            no_solution_counter = 0;
+            // Move line to back since it's still incomplete and wait for more clues
+            queue.push(l);
+        }
+
+        if (line_updated) {
+            no_solution_counter = 0;         
+        } else {
+            no_solution_counter++;
         }
 
         total_steps++;
