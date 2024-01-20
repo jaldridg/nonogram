@@ -17,7 +17,10 @@ private:
     // A queue of the pointers of the rows/cols which need to be analyzed next
     std::queue<line *> queue;
 
-    void runCertaintyRule(line * l);
+    void runCertaintyStrategy(line * l);
+
+    bool runGrowthStrategyBeginning(line * l);
+    bool runGrowthStrategyEnd(line * l);
 
     bool attemptLineCompletion(line * l);
 };

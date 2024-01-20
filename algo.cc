@@ -19,7 +19,7 @@ void Algo::run() {
     int total_steps = queue.size();
     for (int i = 0; i < queue.size(); i++) {
         line * l = queue.front();
-        runCertaintyRule(l);
+        runCertaintyStrategy(l);
         queue.pop();
         queue.push(l);
     }
@@ -29,14 +29,18 @@ void Algo::run() {
     while (queue.size() != 0) {
         line * l = queue.front();
         queue.pop();
-        
+
         bool line_updated = false;
+        if (runGrowthStrategyBeginning(l) || runGrowthStrategyEnd(l) /* || strategy 3 || strategy 4 */) {
+            line_updated = true;
+        } 
+        
+        // See if our strategies completed the line
         if (attemptLineCompletion(l)) {
             line_updated = true;
         } else {
-            // Move line to back since it's still incomplete and wait for more clues
             queue.push(l);
-        }
+        }       
 
         if (line_updated) {
             no_solution_counter = 0;         
@@ -53,7 +57,7 @@ void Algo::run() {
     }
 }
 
-void Algo::runCertaintyRule(line * l) {
+void Algo::runCertaintyStrategy(line * l) {
     std::vector<int> * clues = l->clues;
 
     // Run certainty rule on each block in a line based 
@@ -88,6 +92,50 @@ void Algo::runCertaintyRule(line * l) {
             board->setTileRange(l, std::make_pair(lower_limit, upper_limit), FILLED);
         }
     }
+}
+
+// Attempt growth from start of the line
+bool Algo::runGrowthStrategyBeginning(line * l) {
+    // Traverse to the first filled block
+    int i = 0;
+    while (l->tiles[i] == NONE) { i++; }
+
+    // Only works if the next cell is FILLED
+    // (we haven't dealt with floating cells with unknown cells in between)
+    bool can_fill = l->tiles[i] == FILLED;
+    int initial_filled = l->filled_tiles;
+    if (can_fill) {
+        int upper_cell = i + l->clues->at(0) - 1;
+        board->setTileRange(l, std::make_pair(i, upper_cell), FILLED);
+        if (upper_cell + 1 < board->size) {
+            board->setTileRange(l, std::make_pair(upper_cell + 1, upper_cell + 1), NONE);
+        }
+    }
+    // Check if we actually updated something and made progress
+    bool updated = l->filled_tiles - initial_filled > 0;
+    return can_fill && updated;
+}
+
+// Attempt grwoth from the end of the line
+bool Algo::runGrowthStrategyEnd(line * l) {
+    // Traverse to the first filled block
+    int i = board->size - 1;
+    while (l->tiles[i] == NONE) { i--; }
+
+    // Only works if the next cell is FILLED
+    // (we haven't dealt with floating cells with unknown cells in between)
+    bool can_fill = l->tiles[i] == FILLED;
+    int initial_filled = l->filled_tiles;
+    if (can_fill) {
+        int lower_cell = i - (l->clues->at(l->clues->size()) - 1);
+        board->setTileRange(l, std::make_pair(lower_cell, i), FILLED);
+        if (lower_cell - 1 >= 0) {
+            board->setTileRange(l, std::make_pair(lower_cell - 1, lower_cell - 1), NONE);
+        }
+    }
+    // Check if we actually updated something and made progress
+    bool updated = l->filled_tiles - initial_filled > 0;
+    return can_fill && updated;
 }
 
 bool Algo::attemptLineCompletion(line * l) {

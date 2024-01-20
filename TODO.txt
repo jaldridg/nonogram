@@ -19,6 +19,11 @@ Block growth: "Grow" (more like complete) blocks when there is only one way for 
         - For example if there was a 5 clue and a filled tile second from the right...
         ...we'd know there are more filled tiles to the right since the 5 block is big enough
 
+Clue completion - Data structure idea
+- Using a technique similar to growth we can keep track of which clues have been completed and use that to our advantage
+    - Maybe a clue should have a completed field (gotta add that to the clue data structure though)
+- Maybe we could make the completed clues invisible to some algorithms somehow
+
 Gap filling: Get rid of small gaps (in between two Xs for example) which cannot fit a large block
 - Basic solution: Fill any gap which is smaller than our smallest block in the line
 - Better solution: Same as above but be more aware of which blocks may actually fill the gap

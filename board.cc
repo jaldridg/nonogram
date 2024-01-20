@@ -128,7 +128,7 @@ void Board::print() {
 }
 
 // Fills the line with the given state using the limits in the pair
-// The first entry is the starting index and the second entry is the stopping index
+// The first entry is the starting index and the second entry is the stopping index (inclusive)
 void Board::setTileRange(line * line, std::pair<int, int> ids, Tilestate state) {
     assert(ids.first <= ids.second);
 
