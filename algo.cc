@@ -96,6 +96,8 @@ void Algo::runCertaintyStrategy(line * l) {
 
 // Attempt growth from start of the line
 bool Algo::runGrowthStrategyBeginning(line * l) {
+    if (l->unknown_tiles == 0) { return false; }
+
     // Traverse to the first filled block
     int i = 0;
     while (l->tiles[i] == NONE) { i++; }
@@ -118,6 +120,8 @@ bool Algo::runGrowthStrategyBeginning(line * l) {
 
 // Attempt grwoth from the end of the line
 bool Algo::runGrowthStrategyEnd(line * l) {
+    if (l->unknown_tiles == 0) { return false; }
+
     // Traverse to the first filled block
     int i = board->size - 1;
     while (l->tiles[i] == NONE) { i--; }
@@ -127,7 +131,7 @@ bool Algo::runGrowthStrategyEnd(line * l) {
     bool can_fill = l->tiles[i] == FILLED;
     int initial_filled = l->filled_tiles;
     if (can_fill) {
-        int lower_cell = i - (l->clues->at(l->clues->size()) - 1);
+        int lower_cell = i - (l->clues->at(l->clues->size() - 1));
         board->setTileRange(l, std::make_pair(lower_cell, i), FILLED);
         if (lower_cell - 1 >= 0) {
             board->setTileRange(l, std::make_pair(lower_cell - 1, lower_cell - 1), NONE);
