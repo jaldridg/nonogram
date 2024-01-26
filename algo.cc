@@ -131,7 +131,7 @@ bool Algo::runGrowthStrategyEnd(line * l) {
     bool can_fill = l->tiles[i] == FILLED;
     int initial_filled = l->filled_tiles;
     if (can_fill) {
-        int lower_cell = i - (l->clues->at(l->clues->size() - 1));
+        int lower_cell = i - (l->clues->at(l->clues->size() - 1)) + 1;
         board->setTileRange(l, std::make_pair(lower_cell, i), FILLED);
         if (lower_cell - 1 >= 0) {
             board->setTileRange(l, std::make_pair(lower_cell - 1, lower_cell - 1), NONE);
