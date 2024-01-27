@@ -122,7 +122,13 @@ bool Algo::runGrowthStrategyBeginning(line * l) {
 bool Algo::runGrowthStrategyEnd(line * l) {
     if (l->unknown_tiles == 0) { return false; }
 
-    // Traverse to the first filled block
+    printf("Row?: %d\n", l->is_row);
+    if (l->clues->size() == 1) { printf("Clues: %d\n", l->clues->at(0)); }
+    if (l->clues->size() == 2) { printf("Clues: %d %d\n", l->clues->at(0), l->clues->at(1)); }
+
+    board->print();
+
+    // Traverse until the first unknown tile
     int i = board->size - 1;
     int filled_count = 0;
     int clue_index = l->clues->size() - 1;
@@ -132,8 +138,16 @@ bool Algo::runGrowthStrategyEnd(line * l) {
             filled_count++;
             // If we've counted all tiles in a clue, we've exhausted it so move onto the next one for counting
             if (filled_count == l->clues->at(clue_index)) { 
-                clue_index--; 
+                clue_index--;
                 filled_count = 0;
+
+                // If the next cell is unknown, it must actually be NONE
+                // Grow it out so we can try to grow other blocks - and avoid edge cases :)
+                if (l->tiles[i - 1] == UNKNOWN) {
+                    board->setTileRange(l, std::make_pair(i - 1, i - 1), NONE);
+                    // Edge case where we complete the line by completing the NONE tile
+                    if (i - 1 == 0) { return true; }
+                }
             }
         }
         i--;
@@ -142,8 +156,8 @@ bool Algo::runGrowthStrategyEnd(line * l) {
     // Look at the tile before the unknown space
     // If filled, grow the block based on the clue's given size
     int initial_filled = l->filled_tiles;
-    if (l->tiles[i] == FILLED) {
-        int lower_cell = i - (l->clues->at(clue_index)) + 1;
+    if (l->tiles[i + 1] == FILLED) {
+        int lower_cell = i - (l->clues->at(clue_index)) + 1 + filled_count;
         board->setTileRange(l, std::make_pair(lower_cell, i), FILLED);
         if (lower_cell - 1 >= 0) {
             board->setTileRange(l, std::make_pair(lower_cell - 1, lower_cell - 1), NONE);
@@ -166,12 +180,9 @@ bool Algo::runGrowthStrategyEnd(line * l) {
         }
 
         if (can_fill) {
-        int lower_cell = i - (l->clues->at(clue_index)) + gap_length + 1;
-        board->setTileRange(l, std::make_pair(lower_cell, i), FILLED);
-        if (lower_cell - 1 >= 0) {
-            board->setTileRange(l, std::make_pair(lower_cell - 1, lower_cell - 1), NONE);
+            int lower_cell = i - (l->clues->at(clue_index)) + gap_length + 1;
+            board->setTileRange(l, std::make_pair(lower_cell, i), FILLED);
         }
-    }
     }
 
     // Check if we actually updated something and made progress
