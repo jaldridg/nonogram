@@ -1,37 +1,9 @@
 Strategies to implement
 
-Line Shrinkage
-- Only applies to a single clue line
-- When at least one tile is filled, we know that the block must be that area, so fill the distant cells with Xs
-
-Certainty Rule #2:
-- Basically a redo of the first rule, but counts the Xs as well as clue sizes when accounting for surrounding spaces
-- Might be able to incorporate this in the preexisting rule
-    - In that case, we'd have to make this a recurring check
-
-Block growth: "Grow" (more like complete) blocks when there is only one way for them to expand
-- By starting at the edges, we know the first/last filled tile we encounter belongs to the first/last clue
-- Also a fill of a whole block means we can also cap the block with an X since there cannot be another filled tile there
-    - Level 1: Along edges of the board
-    - Level 2: Start at the edges of the board and move inwards until there's an unknown tile
-        - We'd probably count what we come across and determine what the adjacent unknown tiles are
-    - Level 3: Grow when there are unknown tiles between the first block
-        - For example if there was a 5 clue and a filled tile second from the right...
-        ...we'd know there are more filled tiles to the right since the 5 block is big enough
-
-Clue completion - Data structure idea
-- Using a technique similar to growth we can keep track of which clues have been completed and use that to our advantage
-    - Maybe a clue should have a completed field (gotta add that to the clue data structure though)
-- Maybe we could make the completed clues invisible to some algorithms somehow
-
-Gap filling: Get rid of small gaps (in between two Xs for example) which cannot fit a large block
-- Basic solution: Fill any gap which is smaller than our smallest block in the line
-- Better solution: Same as above but be more aware of which blocks may actually fill the gap
-    - For example if we have a 7,3 in a 15x15 board, a gap of 3 on the left should be filled since 7 must be in the left side
-
-Block connecting (advanced)
-- Might share some techniques with line growth
-- Recognize which cells must belong to the same block (tricky with multiple clues per line - new data structures maybe?)
-    - Fill the known blocks
-    - Put Xs between separated blocks
-        - Basic solution: see which connections would exceed the maximum block size given throgh clues
+Block Data structure
+    - Instead of storing tiles, store blocks which are stretch of the same tile type
+    - OOXXOO???X would be stored as 2O, 2X, 2O, 3? 1X
+	- Powerful since each block must belong to the same clue and we can loop over each block instead of each tile
+    - Using this data structure
+        - We will know which cells belong to which clues
+        - We will know whether a clue has been solved
