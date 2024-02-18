@@ -101,12 +101,14 @@ void Algo::runCertaintyStrategy(line * l) {
 bool Algo::runGrowthStrategyBeginning(line * l) {
     if (l->unknown_tiles == 0) { return false; }
 
+    /*
     printf("Growth Strat Beginning\n");
     printf("Row?: %d, id: %d\n", l->is_row, l->line_number);
     if (l->clues->size() == 1) { printf("Clues: %d\n", l->clues->at(0)); }
     if (l->clues->size() == 2) { printf("Clues: %d %d\n", l->clues->at(0), l->clues->at(1)); }
     board->print();
     printf("\n\n");
+    */
     
     // Traverse until the first unknown tile
     int i = 0;
@@ -160,7 +162,7 @@ bool Algo::runGrowthStrategyBeginning(line * l) {
         }
 
         if (can_fill) {
-            int upper_cell = i + l->clues->at(clue_index) - gap_length - 1;
+            int upper_cell = i + l->clues->at(clue_index) - gap_length - 1 ;
             board->setTileRange(l, std::make_pair(i, upper_cell), FILLED);
         }
     }

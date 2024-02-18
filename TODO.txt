@@ -1,9 +1,13 @@
 Strategies to implement
 
 Block Data structure
-    - Instead of storing tiles, store blocks which are stretch of the same tile type
+    - Instead of storing tiles, store blocks which are stretches of the same tile type
     - OOXXOO???X would be stored as 2O, 2X, 2O, 3? 1X
 	- Powerful since each block must belong to the same clue and we can loop over each block instead of each tile
     - Using this data structure
         - We will know which cells belong to which clues
         - We will know whether a clue has been solved
+
+Replace line operations with block operations
+
+See if we can turn lineGrowth beginning and end into one function with parameters that "select" whether to do end or beginning

@@ -11,11 +11,23 @@ enum Tilestate {
     //COL_TWO = 66,
     //COL_THREE = 67
 };
-
 typedef Tilestate * Tiles;
+
+// Doubly linked list style
+struct block {
+    int first_tile; // The index of the first tile in the block
+    int last_tile;  // The index of the last tile in the block
+    int block_length;
+    Tilestate tile_state;
+    block * prev;
+    block * next;
+};
+typedef std::vector<block> * Blocks;
+
 typedef std::vector<int> * Clues;
 
 struct line {
+    Blocks blocks;
     Tiles tiles;
     Clues clues;
     int unknown_tiles;

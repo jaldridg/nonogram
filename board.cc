@@ -38,19 +38,28 @@ Board::Board() {
         }
     }
 
-    // Get the clues from our clue file reader
     for (int i = 0; i < size; i++) {
         Clues rc = new std::vector<int>;
         Clues cc = new std::vector<int>;
+
+        // Get the clues from our clue file reader
         for (int j = 0; j < reader.row_clues.at(i).size(); j++) {
             rc->push_back(reader.row_clues.at(i).at(j));
         }
-        
         for (int j = 0; j < reader.col_clues.at(i).size(); j++) {
             cc->push_back(reader.col_clues.at(i).at(j));
         }
         rows[i].clues = rc;
         cols[i].clues = cc;
+
+        // Initialize our blocks
+        Blocks row_blocks = new std::vector<block>;
+        Blocks col_blocks = new std::vector<block>;
+        block initial_block = block { 0, size - 1, size, UNKNOWN };
+        row_blocks->push_back(initial_block);
+        col_blocks->push_back(initial_block);
+        rows[i].blocks = row_blocks;
+        cols[i].blocks = col_blocks;
     }
 }
 
@@ -60,6 +69,8 @@ void Board::clear() {
         delete[] cols[i].tiles;
         delete rows[i].clues;
         delete cols[i].clues;
+        delete rows[i].blocks;
+        delete cols[i].blocks;
     }
     delete[] rows;
     delete[] cols;
@@ -119,7 +130,16 @@ void Board::print() {
             }
         }
         printf("|");
-        // Print board
+        // Print 
+        /*
+        for (int j = 0; j < rows[i].blocks->size(); j++) {
+            Tilestate t = rows[i].blocks->at(j).tile_state;
+            int size = rows[i].blocks->at(j).block_length;
+            for (int k = 0; k < size; k++) {
+                printf("%c ", t);
+            }
+        }
+        */
         for (int j = 0; j < size; j++) {
             printf("%c ", rows[i].tiles[j]);
         }
@@ -132,23 +152,12 @@ void Board::print() {
 void Board::setTileRange(line * line, std::pair<int, int> ids, Tilestate state) {
     assert(ids.first <= ids.second);
 
-    if (line->is_row) {
-        // Edit each column affected
-        for (int i = ids.first; i <= ids.second; i++) {
-            if (cols[i].tiles[line->line_number] != state) {
-                cols[i].tiles[line->line_number] = state;
-                cols[i].unknown_tiles--;
-                if (state == FILLED) { cols[i].filled_tiles++; }
-            }
-        }
-    } else {
-        // Edit each row affected
-        for (int i = ids.first; i <= ids.second; i++) {
-            if (rows[i].tiles[line->line_number] != state) {
-                rows[i].tiles[line->line_number] = state;
-                rows[i].unknown_tiles--;
-                if (state == FILLED) { rows[i].filled_tiles++; }
-            }
+    for (int i = ids.first; i <= ids.second; i++) {
+        struct line l = line->is_row ? cols[i] : rows[i];
+        if (l.tiles[line->line_number] != state) {
+            l.tiles[line->line_number] = state;
+            l.unknown_tiles--;
+            if (state == FILLED) { l.filled_tiles++; }
         }
     }
 
@@ -165,23 +174,35 @@ void Board::setTileRange(line * line, std::pair<int, int> ids, Tilestate state) 
 }
 
 void Board::completeLine(line * line) {
-    if (line->is_row) {
-        for (int i = 0; i < size; i++) {
-            if (line->tiles[i] == UNKNOWN) {
-                line->tiles[i] = NONE;
-                cols[i].tiles[line->line_number] = NONE;
-                cols[i].unknown_tiles--;
-            }
+    for (int i = 0; i < size; i++) {
+        if (line->tiles[i] == UNKNOWN) {
+            line->tiles[i] = NONE;
+
+            struct line l = line->is_row ? cols[i] : rows[i];
+            l.tiles[line->line_number] = NONE;
+            l.unknown_tiles--;
         }
-    } else {
-        for (int i = 0; i < size; i++) {
-            if (line->tiles[i] == UNKNOWN) {
-                line->tiles[i] = NONE;
-                rows[i].tiles[line->line_number] = NONE;
-                rows[i].unknown_tiles--;
+    }
+
+    // BLOCK APPROACH
+    // Loop over blocks
+    for (int i = 0; i < line->blocks->size(); i++) {
+        if (line->blocks->at(i).tile_state == UNKNOWN) {
+            line->blocks->at(i).tile_state = NONE;
+            // Loop over each tile in the block and correct the opposite dimension
+            Blocks blocks = line->is_row ? cols[i].blocks : rows[i].blocks;
+            // TODO: Need to find the block which belongs to a certain tile
+                // This could be a data structure thing by adding the a block pointer to each tile
+                // This could also be a function which loops over the blocks and sees which one is at the index
+            for () {
+                // Split block and set to none
+                // Attempt to merge new block
+
             }
         }
     }
+    // Attempt to merge
+    // unknowntiles --;
     
     line->unknown_tiles = 0;
 }
