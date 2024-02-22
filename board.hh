@@ -11,7 +11,11 @@ enum Tilestate {
     //COL_TWO = 66,
     //COL_THREE = 67
 };
-typedef Tilestate * Tiles;
+
+struct tile {
+    Tilestate state;
+    block * block;
+};
 
 // Doubly linked list style
 struct block {
@@ -28,7 +32,7 @@ typedef std::vector<int> * Clues;
 
 struct line {
     Blocks blocks;
-    Tiles tiles;
+    tile * tiles;
     Clues clues;
     int unknown_tiles;
     int filled_tiles;
@@ -48,6 +52,8 @@ public:
     void clear();
 
     void print();
+
+    void setTile(line * line, int index, Tilestate state);
 
     void setTileRange(line * line, std::pair<int, int> ids, Tilestate state);
 

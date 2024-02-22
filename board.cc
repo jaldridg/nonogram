@@ -30,8 +30,8 @@ Board::Board() {
 
     // Fill board with unknown tiles which must be solved
     for (int i = 0; i < size; i++) {
-        rows[i].tiles = new Tilestate[size];
-        cols[i].tiles = new Tilestate[size];
+        rows[i].tiles = new tile[size];
+        cols[i].tiles = new tile[size];
         for (int j = 0; j < size; j++) {
             rows[i].tiles[j] = UNKNOWN;
             cols[i].tiles[j] = UNKNOWN;
@@ -147,6 +147,14 @@ void Board::print() {
     }
 }
 
+// Sets a tile to a given tilestate by splitting blocks if necessary
+// Note: This does not correct the other dimension but should be used as a helper
+void Board::setTile(line * line, int index, Tilestate state) {
+    // Split block 
+    // set new block to state
+    // Attempt to merge new block
+}
+
 // Fills the line with the given state using the limits in the pair
 // The first entry is the starting index and the second entry is the stopping index (inclusive)
 void Board::setTileRange(line * line, std::pair<int, int> ids, Tilestate state) {
@@ -195,9 +203,7 @@ void Board::completeLine(line * line) {
                 // This could be a data structure thing by adding the a block pointer to each tile
                 // This could also be a function which loops over the blocks and sees which one is at the index
             for () {
-                // Split block and set to none
-                // Attempt to merge new block
-
+                setTile(line, ???, NONE);
             }
         }
     }
