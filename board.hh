@@ -12,11 +12,6 @@ enum Tilestate {
     //COL_THREE = 67
 };
 
-struct tile {
-    Tilestate state;
-    block * block;
-};
-
 // Doubly linked list style
 struct block {
     int first_tile; // The index of the first tile in the block
@@ -26,12 +21,18 @@ struct block {
     block * prev;
     block * next;
 };
-typedef std::vector<block> * Blocks;
+
+struct tile {
+    Tilestate state;
+    block * block;
+};
 
 typedef std::vector<int> * Clues;
 
 struct line {
-    Blocks blocks;
+    block * block_head;
+    block * block_tail;
+    int block_count;
     tile * tiles;
     Clues clues;
     int unknown_tiles;
@@ -47,11 +48,19 @@ public:
     line * rows;
     line * cols;
 
+    // Stores all of our blocks for easy global access
+    block * blocks;
+    int num_blocks;
+
     Board();
     // The destructor since ~Board is being weird
     void clear();
 
     void print();
+
+    void deleteBlock(block * block);
+
+    void mergeBlock(block * block, line * line);
 
     void setTile(line * line, int index, Tilestate state);
 

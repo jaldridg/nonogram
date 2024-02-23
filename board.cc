@@ -15,6 +15,9 @@ Board::Board() {
     rows = new line[size];
     cols = new line[size];
 
+    blocks = new block[2 * size * size];
+    block_count = 0;
+
     // Initialize default line values
     for (int i = 0; i < size; i++) {
         rows[i].filled_tiles = 0;
@@ -28,17 +31,8 @@ Board::Board() {
         cols[i].is_row = false;
     }
 
-    // Fill board with unknown tiles which must be solved
     for (int i = 0; i < size; i++) {
-        rows[i].tiles = new tile[size];
-        cols[i].tiles = new tile[size];
-        for (int j = 0; j < size; j++) {
-            rows[i].tiles[j] = UNKNOWN;
-            cols[i].tiles[j] = UNKNOWN;
-        }
-    }
-
-    for (int i = 0; i < size; i++) {
+        // Initilize clues
         Clues rc = new std::vector<int>;
         Clues cc = new std::vector<int>;
 
@@ -53,13 +47,28 @@ Board::Board() {
         cols[i].clues = cc;
 
         // Initialize our blocks
-        Blocks row_blocks = new std::vector<block>;
-        Blocks col_blocks = new std::vector<block>;
-        block initial_block = block { 0, size - 1, size, UNKNOWN };
-        row_blocks->push_back(initial_block);
-        col_blocks->push_back(initial_block);
-        rows[i].blocks = row_blocks;
-        cols[i].blocks = col_blocks;
+        // This involves our block storage, initial blocks, and their linked lists
+        block * block_head;
+        block initial_row_block = block { 0, size - 1, size, UNKNOWN, NULL, NULL };
+        block initial_col_block = block { 0, size - 1, size, UNKNOWN, NULL, NULL };
+        blocks->push_back(initial_row_block);
+        block * initial_row_block_ptr = &(blocks->back());
+        blocks->push_back(initial_col_block);
+        block * initial_col_block_ptr = &(blocks->back());
+        rows[i].block_head = initial_row_block_ptr;
+        cols[i].block_head = initial_col_block_ptr;
+        rows[i].block_count = 1;
+        cols[i].block_count = 1;
+
+        // Initilize tiles
+        rows[i].tiles = new tile[size];
+        cols[i].tiles = new tile[size];
+        for (int j = 0; j < size; j++) {
+            rows[i].tiles[j].state = UNKNOWN;
+            cols[i].tiles[j].state = UNKNOWN;
+            rows[i].tiles[j].block = initial_row_block_ptr;
+            cols[i].tiles[j].block = initial_col_block_ptr;
+        }
     }
 }
 
@@ -69,8 +78,6 @@ void Board::clear() {
         delete[] cols[i].tiles;
         delete rows[i].clues;
         delete cols[i].clues;
-        delete rows[i].blocks;
-        delete cols[i].blocks;
     }
     delete[] rows;
     delete[] cols;
@@ -147,12 +154,29 @@ void Board::print() {
     }
 }
 
+void Board::mergeBlock(block * b, line * l) {
+    // Get compatible blocks before this block
+    block * before_block = b;
+    while (before_block->prev) {
+        // Stop if blocks are different types
+        if (before_block->tile_state != before_block->prev->tile_state) { break; }
+        before_block = b->prev;
+    }
+    // Get compatible blocks after this block
+    // Remove all compatible blocks
+    // Update current block
+}
+
 // Sets a tile to a given tilestate by splitting blocks if necessary
 // Note: This does not correct the other dimension but should be used as a helper
 void Board::setTile(line * line, int index, Tilestate state) {
+    // TODO: Need to find the block which belongs to a certain tile
+        // This could be a data structure thing by adding the a block pointer to each tile
+        // This could also be a function which loops over the blocks and sees which one is at the index
     // Split block 
     // set new block to state
     // Attempt to merge new block
+    line->unknown_tiles--;
 }
 
 // Fills the line with the given state using the limits in the pair
@@ -162,8 +186,8 @@ void Board::setTileRange(line * line, std::pair<int, int> ids, Tilestate state) 
 
     for (int i = ids.first; i <= ids.second; i++) {
         struct line l = line->is_row ? cols[i] : rows[i];
-        if (l.tiles[line->line_number] != state) {
-            l.tiles[line->line_number] = state;
+        if (l.tiles[line->line_number].state != state) {
+            l.tiles[line->line_number].state = state;
             l.unknown_tiles--;
             if (state == FILLED) { l.filled_tiles++; }
         }
@@ -172,8 +196,8 @@ void Board::setTileRange(line * line, std::pair<int, int> ids, Tilestate state) 
     // Set the range in the line
     int diff_count = 0;
     for (int i = ids.first; i <= ids.second; i++) {
-        if (line->tiles[i] != state) {
-            line->tiles[i] = state;
+        if (line->tiles[i].state != state) {
+            line->tiles[i].state = state;
             diff_count++;
         }
     }
@@ -181,34 +205,38 @@ void Board::setTileRange(line * line, std::pair<int, int> ids, Tilestate state) 
     if (state == FILLED) { line->filled_tiles += diff_count; }
 }
 
-void Board::completeLine(line * line) {
+void Board::completeLine(line * l) {
+    // TILE APPROACH
+    /*
     for (int i = 0; i < size; i++) {
-        if (line->tiles[i] == UNKNOWN) {
-            line->tiles[i] = NONE;
+        if (line->tiles[i].state == UNKNOWN) {
+            line->tiles[i].state = NONE;
 
             struct line l = line->is_row ? cols[i] : rows[i];
-            l.tiles[line->line_number] = NONE;
+            l.tiles[line->line_number].state = NONE;
             l.unknown_tiles--;
         }
     }
+    */
 
     // BLOCK APPROACH
     // Loop over blocks
-    for (int i = 0; i < line->blocks->size(); i++) {
-        if (line->blocks->at(i).tile_state == UNKNOWN) {
-            line->blocks->at(i).tile_state = NONE;
+    block * curr_block = l->block_head;
+    for (int i = 0; i < l->block_count; i++) {
+        if (curr_block->tile_state == UNKNOWN) {
+            curr_block->tile_state = NONE;
             // Loop over each tile in the block and correct the opposite dimension
-            Blocks blocks = line->is_row ? cols[i].blocks : rows[i].blocks;
-            // TODO: Need to find the block which belongs to a certain tile
-                // This could be a data structure thing by adding the a block pointer to each tile
-                // This could also be a function which loops over the blocks and sees which one is at the index
-            for () {
-                setTile(line, ???, NONE);
+            for (int j = curr_block->first_tile; j <= curr_block->last_tile; j++) {
+                line * opposite_line = l->is_row ? (cols + i) : (rows + i);
+                setTile(opposite_line, j, NONE);
             }
         }
+        curr_block = curr_block->next;
     }
-    // Attempt to merge
-    // unknowntiles --;
+    // Attempt to merge (we have to check the whole line since we updated mutiple blocks)
+    for (int i = 0; i < l->block_count; i+=2) {
+
+    }
     
-    line->unknown_tiles = 0;
+    l->unknown_tiles = 0;
 }
