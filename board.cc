@@ -16,7 +16,7 @@ Board::Board() {
     cols = new line[size];
 
     blocks = new block[2 * size * size];
-    block_count = 0;
+    num_blocks = 0;
 
     // Initialize default line values
     for (int i = 0; i < size; i++) {
@@ -48,26 +48,25 @@ Board::Board() {
 
         // Initialize our blocks
         // This involves our block storage, initial blocks, and their linked lists
-        block * block_head;
         block initial_row_block = block { 0, size - 1, size, UNKNOWN, NULL, NULL };
         block initial_col_block = block { 0, size - 1, size, UNKNOWN, NULL, NULL };
-        blocks->push_back(initial_row_block);
-        block * initial_row_block_ptr = &(blocks->back());
-        blocks->push_back(initial_col_block);
-        block * initial_col_block_ptr = &(blocks->back());
+        block * initial_row_block_ptr = blocks + num_blocks;
+        block * initial_col_block_ptr = blocks + num_blocks + 1;
+        blocks[num_blocks++] = initial_row_block;
+        blocks[num_blocks++] = initial_col_block;
         rows[i].block_head = initial_row_block_ptr;
+        rows[i].block_tail = initial_row_block_ptr;
         cols[i].block_head = initial_col_block_ptr;
+        cols[i].block_tail = initial_col_block_ptr;
         rows[i].block_count = 1;
         cols[i].block_count = 1;
 
         // Initilize tiles
-        rows[i].tiles = new tile[size];
-        cols[i].tiles = new tile[size];
+        rows[i].tiles = new Tilestate[size];
+        cols[i].tiles = new Tilestate[size];
         for (int j = 0; j < size; j++) {
-            rows[i].tiles[j].state = UNKNOWN;
-            cols[i].tiles[j].state = UNKNOWN;
-            rows[i].tiles[j].block = initial_row_block_ptr;
-            cols[i].tiles[j].block = initial_col_block_ptr;
+            rows[i].tiles[j]= UNKNOWN;
+            cols[i].tiles[j] = UNKNOWN;
         }
     }
 }
@@ -138,71 +137,184 @@ void Board::print() {
         }
         printf("|");
         // Print 
-        /*
-        for (int j = 0; j < rows[i].blocks->size(); j++) {
-            Tilestate t = rows[i].blocks->at(j).tile_state;
-            int size = rows[i].blocks->at(j).block_length;
-            for (int k = 0; k < size; k++) {
-                printf("%c ", t);
-            }
+        block * curr_block = rows[i].block_head;
+        while (curr_block) {
+            Tilestate t = curr_block->tile_state;
+            for (int k = 0; k < curr_block->block_length; k++) { printf("%c ", t); }
+            curr_block = curr_block->next;
         }
-        */
+        
+       /*
         for (int j = 0; j < size; j++) {
             printf("%c ", rows[i].tiles[j]);
         }
+        */
         printf("\n");
+    }
+}
+
+void Board::deleteBlock(block * b) {
+    // Move last block to open space
+    int new_index = (b - blocks) / sizeof(block);
+    blocks[new_index] = blocks[num_blocks - 1];
+
+    // Update pointers of previous and next blocks
+    if (b->prev) {
+        b->prev->next = b->next;
+    }
+    if (b->next) {
+        b->next->prev = b->prev;
+    }
+    num_blocks--;
+}
+
+// Splits a block as if the mask indecies are a block which is being cut out of the given block 
+void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask_index) {
+    assert(lower_mask_index <= upper_mask_index);
+
+    // Make a new block which comes before the current one
+    if (lower_mask_index > b->first_tile) {
+        // Make new block
+        int first = b->first_tile;
+        int last = lower_mask_index - 1;
+        int length = last - first + 1;
+        Tilestate ts = b->tile_state;
+        block * prev = b->prev;
+        block * next = b;
+        block split_block = block { first, last, length, ts, prev, next };
+        
+        // Modify current block to link to new block
+        b->first_tile = lower_mask_index;
+        b->block_length -= length;
+        b->prev = blocks + num_blocks;
+
+        blocks[num_blocks++] = split_block;
+        l->block_count++;
+    }
+    // Make a new block which comes after the current one
+    if (upper_mask_index < b->last_tile) {
+        // Make new block
+        int first = upper_mask_index + 1;
+        int last = b->last_tile;
+        int length = last - first + 1;
+        Tilestate ts = b->tile_state;
+        block * prev = b;
+        block * next = b->next;
+        block split_block = block { first, last, length, ts, prev, next };
+        
+        // Modify current block to link to new block
+        b->last_tile = upper_mask_index;
+        b->block_length -= length;
+        b->next = blocks + num_blocks;
+
+        blocks[num_blocks++] = split_block;
+        l->block_count++;
     }
 }
 
 void Board::mergeBlock(block * b, line * l) {
     // Get compatible blocks before this block
-    block * before_block = b;
-    while (before_block->prev) {
+    int first_index = b->first_tile;
+    block * first_block = b;
+    while (first_block->prev) {
         // Stop if blocks are different types
-        if (before_block->tile_state != before_block->prev->tile_state) { break; }
-        before_block = b->prev;
+        if (first_block->tile_state != first_block->prev->tile_state) { 
+            first_index = first_block->first_tile;
+            break; 
+        }
+        first_block = first_block->prev;
+        deleteBlock(first_block->next);
+        l->block_count--;
     }
     // Get compatible blocks after this block
-    // Remove all compatible blocks
-    // Update current block
+    // Since we've been removing blocks, we start at before_block->next
+    block * last_block = first_block;
+    while (last_block->next) {
+        // Stop if blocks are different types
+        if (last_block->tile_state != last_block->prev->tile_state) {
+            break; 
+        }
+        last_block = last_block->next;
+        deleteBlock(last_block->prev);
+        l->block_count--;
+    }
+
+    // If we merged the first block, we need to update the head
+    if (first_index == 0) {
+        l->block_head = last_block;
+    }
+    // Last block should now encompass all of the blocks that were removed
+    last_block->first_tile = first_index;
 }
 
 // Sets a tile to a given tilestate by splitting blocks if necessary
-// Note: This does not correct the other dimension but should be used as a helper
-void Board::setTile(line * line, int index, Tilestate state) {
-    // TODO: Need to find the block which belongs to a certain tile
-        // This could be a data structure thing by adding the a block pointer to each tile
-        // This could also be a function which loops over the blocks and sees which one is at the index
-    // Split block 
-    // set new block to state
-    // Attempt to merge new block
-    line->unknown_tiles--;
+// Note: This does not correct the opposite dimension but should be used as a helper
+void Board::setTile(line * l, int index, Tilestate state) {
+    assert(index < size);
+
+    // Find index by looping over blocks
+    block * curr_block = l->block_head;
+    while (curr_block->last_tile > index) {
+        curr_block = curr_block->next;
+    }
+
+    splitBlock(curr_block, l, index, index);
+    curr_block->tile_state = state;
+    mergeBlock(curr_block, l);
+    l->unknown_tiles--;
 }
 
 // Fills the line with the given state using the limits in the pair
 // The first entry is the starting index and the second entry is the stopping index (inclusive)
-void Board::setTileRange(line * line, std::pair<int, int> ids, Tilestate state) {
-    assert(ids.first <= ids.second);
+void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate state) {
+    assert(start_index <= stop_index);
 
-    for (int i = ids.first; i <= ids.second; i++) {
-        struct line l = line->is_row ? cols[i] : rows[i];
-        if (l.tiles[line->line_number].state != state) {
-            l.tiles[line->line_number].state = state;
-            l.unknown_tiles--;
-            if (state == FILLED) { l.filled_tiles++; }
+    // TILE APPROACH
+    /*
+    for (int i = start_index; i <= stop_index; i++) {
+        struct line opposite_line = l->is_row ? cols[i] : rows[i];
+        if (opposite_line.tiles[l->line_number] != state) {
+            opposite_line.tiles[l->line_number] = state;
+            opposite_line.unknown_tiles--;
+            if (state == FILLED) { opposite_line.filled_tiles++; }
         }
     }
 
     // Set the range in the line
     int diff_count = 0;
-    for (int i = ids.first; i <= ids.second; i++) {
-        if (line->tiles[i].state != state) {
-            line->tiles[i].state = state;
+    for (int i = start_index; i <= stop_index; i++) {
+        if (l->tiles[i] != state) {
+            l->tiles[i] = state;
             diff_count++;
         }
     }
-    line->unknown_tiles -= diff_count;
-    if (state == FILLED) { line->filled_tiles += diff_count; }
+    l->unknown_tiles -= diff_count;
+    if (state == FILLED) { l->filled_tiles += diff_count; }
+    */
+
+   // Find the first block which intersects with the indices we're interested in
+
+    // Try to split all blocks in the line
+    block * curr_block = l->block_head;
+    while (curr_block) {
+        curr_block = curr_block->next;
+        splitBlock(curr_block, l, start_index, stop_index);
+    }
+
+    // Blocks now line up with indices
+    curr_block = l->block_head;
+    block * to_merge = NULL;
+    while (curr_block) {
+        // Set their states if within the desired indices
+        if ((curr_block->first_tile >= start_index) && (curr_block->last_tile <= stop_index)) {
+            curr_block->tile_state = state;
+            to_merge = curr_block;
+        }
+        curr_block = curr_block->next;
+    }
+    mergeBlock(to_merge, l);
+
+    // When done, loop over new block indices and correct opposite blocks with setTile()
 }
 
 void Board::completeLine(line * l) {
@@ -233,9 +345,13 @@ void Board::completeLine(line * l) {
         }
         curr_block = curr_block->next;
     }
-    // Attempt to merge (we have to check the whole line since we updated mutiple blocks)
-    for (int i = 0; i < l->block_count; i+=2) {
-
+    // Attempt to merge by looping over the blocks
+    // We have to check the whole line since we updated mutiple blocks)
+    // After merging we should jump two more blocks and try to merge more
+    curr_block = l->block_head;
+    while (curr_block->next && curr_block->next->next) {
+        curr_block = curr_block->next->next;
+        mergeBlock(curr_block, l);
     }
     
     l->unknown_tiles = 0;

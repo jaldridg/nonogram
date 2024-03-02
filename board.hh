@@ -11,6 +11,7 @@ enum Tilestate {
     //COL_TWO = 66,
     //COL_THREE = 67
 };
+typedef Tilestate * Tiles;
 
 // Doubly linked list style
 struct block {
@@ -22,18 +23,13 @@ struct block {
     block * next;
 };
 
-struct tile {
-    Tilestate state;
-    block * block;
-};
-
 typedef std::vector<int> * Clues;
 
 struct line {
     block * block_head;
     block * block_tail;
     int block_count;
-    tile * tiles;
+    Tiles tiles;
     Clues clues;
     int unknown_tiles;
     int filled_tiles;
@@ -60,11 +56,13 @@ public:
 
     void deleteBlock(block * block);
 
+    void splitBlock(block * b, line * l, int lower_mask_index, int upper_mask_index);
+
     void mergeBlock(block * block, line * line);
 
     void setTile(line * line, int index, Tilestate state);
 
-    void setTileRange(line * line, std::pair<int, int> ids, Tilestate state);
+    void setTileRange(line * line, int start_index, int stop_index, Tilestate state);
 
     void completeLine(line * line);
 
