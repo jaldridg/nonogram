@@ -154,7 +154,6 @@ void Board::print() {
 }
 
 void Board::deleteBlock(block * b) {
-    printf("deleteBlock()\n");
     // Move last block to open space
     int new_index = (b - blocks) / sizeof(block);
     blocks[new_index] = blocks[num_blocks - 1];
@@ -172,7 +171,6 @@ void Board::deleteBlock(block * b) {
 // Splits a block as if the mask indecies are a block which is being cut out of the given block 
 void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask_index) {
     assert(lower_mask_index <= upper_mask_index);
-    printf("splitBlock(lower_mask_index = %d, upper_mask_index = %d)\n", lower_mask_index, upper_mask_index);
 
     // Make a new block which comes before the current one
     if (lower_mask_index > b->first_tile) {
@@ -212,24 +210,18 @@ void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask
         blocks[num_blocks++] = split_block;
         l->block_count++;
     }
-    printf("num_blocks: %d\n", num_blocks);
 }
 
 void Board::mergeBlock(block * b, line * l) {
-    printf("mergeBlock()\n");
     // Get compatible blocks before this block
     int first_index = b->first_tile;
     block * first_block = b;
     while (first_block->prev) {
-        printf("loop 1\n");
-        printf("fb->p: %p\n", first_block->prev);
-        printf("fb->n: %p\n", first_block->next);
         // Stop if blocks are different types
-        if (first_block->tile_state != first_block->prev->tile_state) { 
+        if (first_block->tile_state != first_block->prev->tile_state) {
             first_index = first_block->first_tile;
-            break; 
+            break;
         }
-        printf("here\n");
         first_block = first_block->prev;
         deleteBlock(first_block->next);
         l->block_count--;
@@ -238,9 +230,6 @@ void Board::mergeBlock(block * b, line * l) {
     // Since we've been removing blocks, we start at before_block->next
     block * last_block = first_block;
     while (last_block->next) {
-        printf("loop 2\n");
-        printf("lb->p: %p\n", last_block->prev);
-        printf("lb->n: %p\n", last_block->next);
         // Stop if blocks are different types
         if (last_block->tile_state != last_block->next->tile_state) {
             break; 
@@ -262,7 +251,6 @@ void Board::mergeBlock(block * b, line * l) {
 // Note: This does not correct the opposite dimension but should be used as a helper
 void Board::setTile(line * l, int index, Tilestate state) {
     assert(index < size);
-    printf("setTile(index = %d, state = %c)\n", index, state);
 
     // Find index by looping over blocks
     block * curr_block = l->block_head;
@@ -280,7 +268,6 @@ void Board::setTile(line * l, int index, Tilestate state) {
 // The first entry is the starting index and the second entry is the stopping index (inclusive)
 void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate state) {
     assert(start_index <= stop_index);
-    printf("setTileRange(start_index = %d, stop_index = %d)\n", start_index, stop_index);
 
     // TILE APPROACH
     /*
@@ -308,43 +295,49 @@ void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate st
    // Find the first block which intersects with the indices we're interested in
 
     // Try to split all blocks in the line
+    printf("1\n");
     block * curr_block = l->block_head;
     while (curr_block) {
         splitBlock(curr_block, l, start_index, stop_index);
         curr_block = curr_block->next;
     }
+    printf("2\n");
 
     // Blocks now line up with indices
     curr_block = l->block_head;
     while (curr_block) {
-        printf("first_tile = %d\n", curr_block->first_tile);
-        printf("last_tile = %d\n", curr_block->last_tile);
-        printf("start_index = %d\n", start_index);
-        printf("stop_index = %d\n", stop_index);
         // Blocks above start_index
         if (curr_block->first_tile >= start_index) {
             // Blocks below stop_index
             if (curr_block->last_tile <= stop_index) {
                 curr_block->tile_state = state;
                 // Fix the blocks in the opposite line
+                printf("3\n");
                 for (int i = curr_block->first_tile; i <= curr_block->last_tile; i++) {
                     line * opposite_line = l->is_row ? (cols + i) : (rows + i);
                     setTile(opposite_line, i, state);
+                    printf("4\n");
                 }
             } else {
                 // Stop when we pass the desired range
                 break;
             }
         }
-        curr_block = curr_block->next;
+        if (curr_block->next) {
+            curr_block = curr_block->next;
+        } else {
+            break;
+        }
     }
-    // Make sure to handle case when there's only one block
+    // Handle case when there's only one block
+    printf("5\n");
     block * to_merge = curr_block->prev ? curr_block->prev : curr_block;
+    printf("6\n");
     mergeBlock(to_merge, l);
+    printf("7\n");
 }
 
 void Board::completeLine(line * l) {
-    printf("completeLine()\n");
     // TILE APPROACH
     /*
     for (int i = 0; i < size; i++) {
