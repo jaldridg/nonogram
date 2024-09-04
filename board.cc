@@ -187,9 +187,14 @@ void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask
         b->first_tile = lower_mask_index;
         b->block_length -= length;
         b->prev = blocks + num_blocks;
+        // Set new block head if necessary
+        if (!split_block.prev) {
+            l->block_head = blocks + num_blocks;
+        }
 
         blocks[num_blocks++] = split_block;
         l->block_count++;
+
     }
     // Make a new block which comes after the current one
     if (upper_mask_index < b->last_tile) {
@@ -206,6 +211,10 @@ void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask
         b->last_tile = upper_mask_index;
         b->block_length -= length;
         b->next = blocks + num_blocks;
+        // Set new block tail if necessary
+        if (!split_block.next) {
+            l->block_tail = blocks + num_blocks;
+        }
 
         blocks[num_blocks++] = split_block;
         l->block_count++;
@@ -264,8 +273,39 @@ void Board::setTile(line * l, int index, Tilestate state) {
     l->unknown_tiles--;
 }
 
-// Fills the line with the given state using the limits in the pair
-// The first entry is the starting index and the second entry is the stopping index (inclusive)
+void Board::printLines() {
+    // Horizontal lines
+    printf("HORIZONTAL LINES\n");
+    for (int i = 0; i < size; i++) {
+        line l = rows[i];
+        printf("Line #%d:\n", i + 1);
+        block * b = l.block_head;
+        int block_count = 0;
+        do {
+            printf("\tBlock #%d:\n", ++block_count);
+            printf("\t\t%d [%c] tiles ranging from tiles %d to %d\n", b->block_length, b->tile_state, b->first_tile, b->last_tile);
+            b = b->next;
+        } while (b);
+    }
+
+    // Vertical lines
+    printf("\nVERTICAL LINES\n");
+    for (int i = 0; i < size; i++) {
+        line l = cols[i];
+        printf("Line #%d:\n", i + 1);
+        block * b = l.block_head;
+        int block_count = 0;
+        do {
+            printf("\tBlock #%d:\n", ++block_count);
+            printf("\t\t%d [%c] tiles ranging from tiles %d to %d\n", b->block_length, b->tile_state, b->first_tile, b->last_tile);
+            b = b->next;
+        } while (b);
+    }
+    printf("\n\n");
+}
+
+// Fills the line with the given state using the limits
+// Starting index and stopping index are inclusive
 void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate state) {
     assert(start_index <= stop_index);
 
@@ -315,7 +355,7 @@ void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate st
                 printf("3\n");
                 for (int i = curr_block->first_tile; i <= curr_block->last_tile; i++) {
                     line * opposite_line = l->is_row ? (cols + i) : (rows + i);
-                    setTile(opposite_line, i, state);
+                    setTile(opposite_line, l->line_number, state);
                     printf("4\n");
                 }
             } else {

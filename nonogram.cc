@@ -6,7 +6,7 @@
 int main() {
     Board b = Board();
     Algo algo = Algo(&b);
-    algo.run();
+    algo.run2();
     b.print();
     b.clear();
     return 0;

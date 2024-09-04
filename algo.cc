@@ -8,6 +8,24 @@ Algo::Algo(Board * board) {
     Algo::board = board;
 }
 
+void Algo::run2() {
+    // Fill the queue with all rows and cols
+    for(int i = 0; i < board->size; i++) {
+        queue.push(board->rows + i);
+        queue.push(board->cols + i);
+    }
+
+    // Do a one time certainty sweep through the puzzle
+    int total_steps = queue.size();
+    for (int i = 0; i < queue.size(); i++) {
+        line * l = queue.front();
+        runCertaintyStrategy(l);
+        board->printLines();
+        queue.pop();
+        queue.push(l);
+    }
+}
+
 void Algo::run() {
     // Fill the queue with all rows and cols
     for(int i = 0; i < board->size; i++) {
@@ -92,7 +110,9 @@ void Algo::runCertaintyStrategy(line * l) {
             int edge_uncertainty = block_size_range - clues->at(i);
             int lower_limit = size_before + edge_uncertainty;
             int upper_limit = size_before + block_size_range - 1 - edge_uncertainty;
+            printf("Setting range\n");
             board->setTileRange(l, lower_limit, upper_limit, FILLED);
+            board->print();
         }
     }
 }
