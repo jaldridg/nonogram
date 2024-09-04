@@ -231,8 +231,12 @@ void Board::mergeBlock(block * b, line * l) {
             first_index = first_block->first_tile;
             break;
         }
+        // Overwirte first_block
         first_block = first_block->prev;
+        first_block->block_length += first_block->next->block_length;
+        first_block->last_tile = first_block->next->last_tile;
         deleteBlock(first_block->next);
+        
         l->block_count--;
     }
     // Get compatible blocks after this block
