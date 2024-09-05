@@ -160,10 +160,12 @@ void Board::deleteBlock(block * b) {
 
     // Update pointers of previous and next blocks
     if (b->prev) {
-        b->prev->next = b->next;
+        block * prev_block = b->prev;
+        prev_block->next = b->next;
     }
     if (b->next) {
-        b->next->prev = b->prev;
+        block * next_block = b->next;
+        next_block->prev = b->prev;
     }
     num_blocks--;
 }
@@ -231,12 +233,16 @@ void Board::mergeBlock(block * b, line * l) {
             first_index = first_block->first_tile;
             break;
         }
-        // Overwirte first_block
+        // Grow block to encompass the next block
         first_block = first_block->prev;
         first_block->block_length += first_block->next->block_length;
         first_block->last_tile = first_block->next->last_tile;
+        // Set tail if the merged block was the tail
+        if (first_block->next == l->block_tail) {
+            l->block_tail = first_block;
+        }
+
         deleteBlock(first_block->next);
-        
         l->block_count--;
     }
     // Get compatible blocks after this block
@@ -247,7 +253,15 @@ void Board::mergeBlock(block * b, line * l) {
         if (last_block->tile_state != last_block->next->tile_state) {
             break; 
         }
+        // Grow block to encompass the prevous block
         last_block = last_block->next;
+        last_block-> block_length += last_block->prev->block_length;
+        last_block->first_tile = last_block->prev->first_tile;
+        // Set head if the merged block was the head
+        if (last_block->prev == l->block_tail) {
+            l->block_head = last_block;
+        }
+
         deleteBlock(last_block->prev);
         l->block_count--;
     }
@@ -286,8 +300,9 @@ void Board::printLines() {
         block * b = l.block_head;
         int block_count = 0;
         do {
-            printf("\tBlock #%d:\n", ++block_count);
+            printf("\tBlock #%d:(%x)\n", ++block_count, b);
             printf("\t\t%d [%c] tiles ranging from tiles %d to %d\n", b->block_length, b->tile_state, b->first_tile, b->last_tile);
+            printf("\t\tprev: %x\t\tnext: %x\n", b->prev, b->next);
             b = b->next;
         } while (b);
     }
@@ -300,8 +315,9 @@ void Board::printLines() {
         block * b = l.block_head;
         int block_count = 0;
         do {
-            printf("\tBlock #%d:\n", ++block_count);
+            printf("\tBlock #%d:(%x)\n", ++block_count, b);
             printf("\t\t%d [%c] tiles ranging from tiles %d to %d\n", b->block_length, b->tile_state, b->first_tile, b->last_tile);
+            printf("\t\tprev: %x\t\tnext: %x\n", b->prev, b->next);
             b = b->next;
         } while (b);
     }
