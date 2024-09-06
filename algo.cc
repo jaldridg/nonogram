@@ -21,6 +21,7 @@ void Algo::run2() {
         line * l = queue.front();
         runCertaintyStrategy(l);
         board->printLines();
+        board->printBlocks();
         queue.pop();
         queue.push(l);
     }

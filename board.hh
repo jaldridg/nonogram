@@ -56,6 +56,8 @@ public:
 
     void printLines();
 
+    void printBlocks();
+
     void deleteBlock(block * block);
 
     void splitBlock(block * b, line * l, int lower_mask_index, int upper_mask_index);

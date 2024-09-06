@@ -154,10 +154,6 @@ void Board::print() {
 }
 
 void Board::deleteBlock(block * b) {
-    // Move last block to open space
-    int new_index = (b - blocks) / sizeof(block);
-    blocks[new_index] = blocks[num_blocks - 1];
-
     // Update pointers of previous and next blocks
     if (b->prev) {
         block * prev_block = b->prev;
@@ -167,6 +163,11 @@ void Board::deleteBlock(block * b) {
         block * next_block = b->next;
         next_block->prev = b->prev;
     }
+
+    // Move last block to open space
+    int new_index = (b - blocks) / sizeof(block);
+    blocks[new_index] = blocks[num_blocks - 1];
+
     num_blocks--;
 }
 
@@ -255,10 +256,10 @@ void Board::mergeBlock(block * b, line * l) {
         }
         // Grow block to encompass the prevous block
         last_block = last_block->next;
-        last_block-> block_length += last_block->prev->block_length;
+        last_block->block_length += last_block->prev->block_length;
         last_block->first_tile = last_block->prev->first_tile;
         // Set head if the merged block was the head
-        if (last_block->prev == l->block_tail) {
+        if (last_block->prev == l->block_head) {
             l->block_head = last_block;
         }
 
@@ -298,9 +299,9 @@ void Board::printLines() {
         line l = rows[i];
         printf("Line #%d:\n", i + 1);
         block * b = l.block_head;
-        int block_count = 0;
         do {
-            printf("\tBlock #%d:(%x)\n", ++block_count, b);
+            int block_number = (int) (b - blocks);
+            printf("\tBlock #%d:(%x)\n", block_number + 1, b);
             printf("\t\t%d [%c] tiles ranging from tiles %d to %d\n", b->block_length, b->tile_state, b->first_tile, b->last_tile);
             printf("\t\tprev: %x\t\tnext: %x\n", b->prev, b->next);
             b = b->next;
@@ -313,15 +314,26 @@ void Board::printLines() {
         line l = cols[i];
         printf("Line #%d:\n", i + 1);
         block * b = l.block_head;
-        int block_count = 0;
         do {
-            printf("\tBlock #%d:(%x)\n", ++block_count, b);
+            int block_number = (int) (b - blocks);
+            printf("\tBlock #%d:(%x)\n", block_number + 1, b);
             printf("\t\t%d [%c] tiles ranging from tiles %d to %d\n", b->block_length, b->tile_state, b->first_tile, b->last_tile);
             printf("\t\tprev: %x\t\tnext: %x\n", b->prev, b->next);
             b = b->next;
         } while (b);
     }
     printf("\n\n");
+}
+
+void Board::printBlocks() {
+    printf("Printing blocks...\n");
+    for (int i = 0; i < size * size * 2; i++) {
+        block b = blocks[i];
+        printf("Block #%d (%x)\n", i + 1, &blocks[i]);
+        printf("\t%d [%c] tiles ranging from tiles %d to %d\n", b.block_length, b.tile_state, b.first_tile, b.last_tile);
+        printf("\tprev: %x\t\tnext: %x\n", b.prev, b.next);
+    }
+    printf("\n");
 }
 
 // Fills the line with the given state using the limits
@@ -355,13 +367,11 @@ void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate st
    // Find the first block which intersects with the indices we're interested in
 
     // Try to split all blocks in the line
-    printf("1\n");
     block * curr_block = l->block_head;
     while (curr_block) {
         splitBlock(curr_block, l, start_index, stop_index);
         curr_block = curr_block->next;
     }
-    printf("2\n");
 
     // Blocks now line up with indices
     curr_block = l->block_head;
@@ -372,11 +382,9 @@ void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate st
             if (curr_block->last_tile <= stop_index) {
                 curr_block->tile_state = state;
                 // Fix the blocks in the opposite line
-                printf("3\n");
                 for (int i = curr_block->first_tile; i <= curr_block->last_tile; i++) {
                     line * opposite_line = l->is_row ? (cols + i) : (rows + i);
                     setTile(opposite_line, l->line_number, state);
-                    printf("4\n");
                 }
             } else {
                 // Stop when we pass the desired range
@@ -390,11 +398,8 @@ void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate st
         }
     }
     // Handle case when there's only one block
-    printf("5\n");
     block * to_merge = curr_block->prev ? curr_block->prev : curr_block;
-    printf("6\n");
     mergeBlock(to_merge, l);
-    printf("7\n");
 }
 
 void Board::completeLine(line * l) {
