@@ -13,3 +13,5 @@ Replace line operations with block operations
 See if we can turn lineGrowth beginning and end into one function with parameters that "select" whether to do end or beginning
 
 Functions are in camel case shouldn't they be snake case?
+
+add a debug class for printing our data structures

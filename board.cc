@@ -28,6 +28,7 @@ Board::Board() {
     }
 
     tempFunctionCount = 0;
+    tempFunctionCount2 = 0;
 
     // Initialize default line values
     for (int i = 0; i < size; i++) {
@@ -165,8 +166,11 @@ void Board::print() {
 }
 
 void Board::deleteBlock(block * b, line * l) {
-    tempFunctionCount++;
     printf("checking deleteBlock\n");
+    if (tempFunctionCount == 5) {
+        printLines();
+        printBlocks();
+    }
     checkBlocks();
     // Update pointers of previous and next blocks
     // Also update line to point to copied block
@@ -193,7 +197,14 @@ void Board::deleteBlock(block * b, line * l) {
 
 // Splits a block as if the mask indecies are a block which is being cut out of the given block 
 void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask_index) {
-    printf("checking splitBlock\n");
+    printf("checking splitBlock (%d)\n", ++tempFunctionCount2);
+    if (tempFunctionCount == 5) {
+        printLines();
+        printBlocks();
+    }
+    if (tempFunctionCount2 == 10) {
+        int x = 1;
+    }
     checkBlocks();
     assert(lower_mask_index <= upper_mask_index);
 
@@ -223,7 +234,6 @@ void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask
         if (!split_block.prev) {
             l->block_head = blocks + num_blocks;
         }
-
     }
     // Make a new block which comes after the current one
     if (upper_mask_index < b->last_tile) {
@@ -256,6 +266,10 @@ void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask
 
 void Board::mergeBlock(block * b, line * l) {
     printf("checking mergeBlock\n");
+    if (tempFunctionCount == 5) {
+        printLines();
+        printBlocks();
+    }
     checkBlocks();
     // Get compatible blocks before this block
     int first_index = b->first_tile;
@@ -274,7 +288,7 @@ void Board::mergeBlock(block * b, line * l) {
         if (first_block->next == l->block_tail) {
             l->block_tail = first_block;
         }
-
+        printf("before delete\n");
         deleteBlock(first_block->next, l);
         l->block_count--;
     }
@@ -295,6 +309,7 @@ void Board::mergeBlock(block * b, line * l) {
             l->block_head = last_block;
         }
 
+        printf("after delete\n");
         deleteBlock(last_block->prev, l);
         l->block_count--;
     }
@@ -311,6 +326,10 @@ void Board::mergeBlock(block * b, line * l) {
 // Note: This does not correct the opposite dimension but should be used as a helper
 void Board::setTile(line * l, int index, Tilestate state) {
     printf("checking setTile\n");
+    if (tempFunctionCount == 5) {
+        printLines();
+        printBlocks();
+    }
     checkBlocks();
     assert(index < size);
 
@@ -335,7 +354,7 @@ void Board::printLines() {
         block * b = l.block_head;
         do {
             int block_number = (int) (b - blocks);
-            printf("\tBlock #%d:(%x)\n", block_number + 1, b);
+            printf("\tBlock #%d: (%x) - %d\n", block_number + 1, b, b->block_length);
             printf("\t\t%d [%c] tiles ranging from tiles %d to %d\n", b->block_length, b->tile_state, b->first_tile, b->last_tile);
             printf("\t\tprev: %x\t\tnext: %x\n", b->prev, b->next);
             b = b->next;
@@ -350,7 +369,7 @@ void Board::printLines() {
         block * b = l.block_head;
         do {
             int block_number = (int) (b - blocks);
-            printf("\tBlock #%d:(%x)\n", block_number + 1, b);
+            printf("\tBlock #%d: (%x) - %d\n", block_number + 1, b, b->block_length);
             printf("\t\t%d [%c] tiles ranging from tiles %d to %d\n", b->block_length, b->tile_state, b->first_tile, b->last_tile);
             printf("\t\tprev: %x\t\tnext: %x\n", b->prev, b->next);
             b = b->next;
@@ -363,9 +382,13 @@ void Board::printBlocks() {
     printf("Printing blocks...\n");
     for (int i = 0; i < size * size * 2; i++) {
         block b = blocks[i];
-        printf("Block #%d (%x)\n", i + 1, &blocks[i]);
+        printf("Block #%d (%x) - %d\n", i + 1, &blocks[i], b.block_length);
         printf("\t%d [%c] tiles ranging from tiles %d to %d\n", b.block_length, b.tile_state, b.first_tile, b.last_tile);
         printf("\tprev: %x\t\tnext: %x\n", b.prev, b.next);
+    }
+    printf("Avilable blocks: ");
+    for (int i = 0; i < open_indices.size(); i++) {
+        printf("%d ", open_indices.at(i) + 1);
     }
     printf("\n");
 }
@@ -417,6 +440,10 @@ void Board::checkBlocks() {
 // Starting index and stopping index are inclusive
 void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate state) {
     printf("checking setTileRange\n");
+    if (tempFunctionCount ==53) {
+        printLines();
+        printBlocks();
+    }
     checkBlocks();
     assert(start_index <= stop_index);
 

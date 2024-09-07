@@ -19,8 +19,13 @@ void Algo::run2() {
     int total_steps = queue.size();
     for (int i = 0; i < queue.size(); i++) {
         line * l = queue.front();
+        board->tempFunctionCount++;
         printf("PASS %d\n", i + 1);
         runCertaintyStrategy(l);
+        if (board->tempFunctionCount == 5) {
+            board->printLines();
+            board->printBlocks();
+        }
         queue.pop();
         queue.push(l);
     }
@@ -80,6 +85,10 @@ void Algo::run() {
 
 void Algo::runCertaintyStrategy(line * l) {
     printf("checking runCertaintyStrategy\n");
+    if (board->tempFunctionCount == 5) {
+        board->printLines();
+        board->printBlocks();
+    }
     board->checkBlocks();
     std::vector<int> * clues = l->clues;
 

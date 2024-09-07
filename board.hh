@@ -50,6 +50,7 @@ public:
     std::vector<int> open_indices;
 
     int tempFunctionCount;
+    int tempFunctionCount2;
 
     Board();
     // The destructor since ~Board is being weird
