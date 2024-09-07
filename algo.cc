@@ -19,9 +19,8 @@ void Algo::run2() {
     int total_steps = queue.size();
     for (int i = 0; i < queue.size(); i++) {
         line * l = queue.front();
+        printf("PASS %d\n", i + 1);
         runCertaintyStrategy(l);
-        board->printLines();
-        board->printBlocks();
         queue.pop();
         queue.push(l);
     }
@@ -80,6 +79,8 @@ void Algo::run() {
 }
 
 void Algo::runCertaintyStrategy(line * l) {
+    printf("checking runCertaintyStrategy\n");
+    board->checkBlocks();
     std::vector<int> * clues = l->clues;
 
     // Run certainty rule on each block in a line based 
@@ -111,7 +112,6 @@ void Algo::runCertaintyStrategy(line * l) {
             int edge_uncertainty = block_size_range - clues->at(i);
             int lower_limit = size_before + edge_uncertainty;
             int upper_limit = size_before + block_size_range - 1 - edge_uncertainty;
-            printf("Setting range\n");
             board->setTileRange(l, lower_limit, upper_limit, FILLED);
             board->print();
         }

@@ -15,8 +15,19 @@ Board::Board() {
     rows = new line[size];
     cols = new line[size];
 
-    blocks = new block[2 * size * size];
+    int block_capacity = 2 * size * size;
+    blocks = new block[block_capacity];
     num_blocks = 0;
+
+    // Start the list of open blocks for reallocation during the algorithm
+    open_indices = std::vector<int>();
+    int initial_indices = 2 * size;
+    int leftover_indices = block_capacity - initial_indices;
+    for (int i = initial_indices; i < block_capacity; i++) {
+        open_indices.push_back(i);
+    }
+
+    tempFunctionCount = 0;
 
     // Initialize default line values
     for (int i = 0; i < size; i++) {
@@ -153,26 +164,37 @@ void Board::print() {
     }
 }
 
-void Board::deleteBlock(block * b) {
+void Board::deleteBlock(block * b, line * l) {
+    tempFunctionCount++;
+    printf("checking deleteBlock\n");
+    checkBlocks();
     // Update pointers of previous and next blocks
+    // Also update line to point to copied block
     if (b->prev) {
         block * prev_block = b->prev;
         prev_block->next = b->next;
+        if (!b->next) {
+            l->block_tail = prev_block;
+        }
     }
     if (b->next) {
         block * next_block = b->next;
         next_block->prev = b->prev;
+        if (!b->prev) {
+            l->block_head = next_block;
+        }
     }
 
-    // Move last block to open space
-    int new_index = (b - blocks) / sizeof(block);
-    blocks[new_index] = blocks[num_blocks - 1];
+    int deleted_block_index = (int) ((b - blocks) / sizeof(block));
+    open_indices.push_back(deleted_block_index);
 
     num_blocks--;
 }
 
 // Splits a block as if the mask indecies are a block which is being cut out of the given block 
 void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask_index) {
+    printf("checking splitBlock\n");
+    checkBlocks();
     assert(lower_mask_index <= upper_mask_index);
 
     // Make a new block which comes before the current one
@@ -185,18 +207,22 @@ void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask
         block * prev = b->prev;
         block * next = b;
         block split_block = block { first, last, length, ts, prev, next };
+
+        // Add to block list
+        int open_index = open_indices.back();
+        open_indices.pop_back();
+        blocks[open_index] = split_block;
+        l->block_count++;
+        num_blocks++;
         
         // Modify current block to link to new block
         b->first_tile = lower_mask_index;
         b->block_length -= length;
-        b->prev = blocks + num_blocks;
+        b->prev = &blocks[open_index];
         // Set new block head if necessary
         if (!split_block.prev) {
             l->block_head = blocks + num_blocks;
         }
-
-        blocks[num_blocks++] = split_block;
-        l->block_count++;
 
     }
     // Make a new block which comes after the current one
@@ -209,22 +235,28 @@ void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask
         block * prev = b;
         block * next = b->next;
         block split_block = block { first, last, length, ts, prev, next };
+
+        // Add to block list
+        int open_index = open_indices.back();
+        open_indices.pop_back();
+        blocks[open_index] = split_block;
+        l->block_count++;
+        num_blocks++;
         
         // Modify current block to link to new block
         b->last_tile = upper_mask_index;
         b->block_length -= length;
-        b->next = blocks + num_blocks;
+        b->next = &blocks[open_index];
         // Set new block tail if necessary
         if (!split_block.next) {
             l->block_tail = blocks + num_blocks;
         }
-
-        blocks[num_blocks++] = split_block;
-        l->block_count++;
     }
 }
 
 void Board::mergeBlock(block * b, line * l) {
+    printf("checking mergeBlock\n");
+    checkBlocks();
     // Get compatible blocks before this block
     int first_index = b->first_tile;
     block * first_block = b;
@@ -243,7 +275,7 @@ void Board::mergeBlock(block * b, line * l) {
             l->block_tail = first_block;
         }
 
-        deleteBlock(first_block->next);
+        deleteBlock(first_block->next, l);
         l->block_count--;
     }
     // Get compatible blocks after this block
@@ -263,7 +295,7 @@ void Board::mergeBlock(block * b, line * l) {
             l->block_head = last_block;
         }
 
-        deleteBlock(last_block->prev);
+        deleteBlock(last_block->prev, l);
         l->block_count--;
     }
 
@@ -278,6 +310,8 @@ void Board::mergeBlock(block * b, line * l) {
 // Sets a tile to a given tilestate by splitting blocks if necessary
 // Note: This does not correct the opposite dimension but should be used as a helper
 void Board::setTile(line * l, int index, Tilestate state) {
+    printf("checking setTile\n");
+    checkBlocks();
     assert(index < size);
 
     // Find index by looping over blocks
@@ -336,9 +370,54 @@ void Board::printBlocks() {
     printf("\n");
 }
 
+void Board::checkBlocks() {
+    for (int i = 0; i < size; i++) {
+        line l = rows[i];
+        block * b = l.block_head;
+        int total_count = 0;
+        do {
+            // Make sure count matches the range presented
+            assert(b->last_tile - b->first_tile + 1 == b->block_length);
+            // Make sure there are no loops
+            assert(b->prev != b);
+            assert(b->next != b);
+            total_count += b->block_length;
+            // Make sure the next block comes right after the current one
+            if (b->next) {
+                assert(b->next->first_tile == b->last_tile + 1);
+            }
+            b = b->next;
+        } while (b);
+        // Make sure block total count is the size of board
+        assert(total_count == size);
+    }
+    for (int i = 0; i < size; i++) {
+        line l = cols[i];
+        block * b = l.block_head;
+        int total_count = 0;
+        do {
+            // Make sure count matches the range presented
+            assert(b->last_tile - b->first_tile + 1 == b->block_length);
+            // Make sure there are no loops
+            assert(b->prev != b);
+            assert(b->next != b);
+            total_count += b->block_length;
+            // Make sure the next block comes right after the current one
+            if (b->next) {
+                assert(b->next->first_tile == b->last_tile + 1);
+            }
+            b = b->next;
+        } while (b);
+        // Make sure block total count is the size of board
+        assert(total_count == size);
+    }
+}
+
 // Fills the line with the given state using the limits
 // Starting index and stopping index are inclusive
 void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate state) {
+    printf("checking setTileRange\n");
+    checkBlocks();
     assert(start_index <= stop_index);
 
     // TILE APPROACH

@@ -47,6 +47,9 @@ public:
     // Stores all of our blocks for easy global access
     block * blocks;
     int num_blocks;
+    std::vector<int> open_indices;
+
+    int tempFunctionCount;
 
     Board();
     // The destructor since ~Board is being weird
@@ -58,7 +61,9 @@ public:
 
     void printBlocks();
 
-    void deleteBlock(block * block);
+    void checkBlocks();
+
+    void deleteBlock(block * b, line * l);
 
     void splitBlock(block * b, line * l, int lower_mask_index, int upper_mask_index);
 
