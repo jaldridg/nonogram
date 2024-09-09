@@ -62,6 +62,8 @@ public:
 
     void printBlocks();
 
+    void printAvailableBlocks();
+
     void checkBlocks();
 
     void deleteBlock(block * b, line * l);

@@ -22,7 +22,7 @@ void Algo::run2() {
         board->tempFunctionCount++;
         printf("PASS %d\n", i + 1);
         runCertaintyStrategy(l);
-        if (board->tempFunctionCount == 5) {
+        if (board->tempFunctionCount == 3) {
             board->printLines();
             board->printBlocks();
         }
@@ -84,12 +84,6 @@ void Algo::run() {
 }
 
 void Algo::runCertaintyStrategy(line * l) {
-    printf("checking runCertaintyStrategy\n");
-    if (board->tempFunctionCount == 5) {
-        board->printLines();
-        board->printBlocks();
-    }
-    board->checkBlocks();
     std::vector<int> * clues = l->clues;
 
     // Run certainty rule on each block in a line based 
@@ -125,6 +119,14 @@ void Algo::runCertaintyStrategy(line * l) {
             board->print();
         }
     }
+
+    printf("\n\nrunCertaintyStrategy\n");
+    board->printAvailableBlocks();
+    if (board->tempFunctionCount == 3) {
+        board->printLines();
+        board->printBlocks();
+    }
+    board->checkBlocks();
 }
 
 // Attempt growth from start of the line
