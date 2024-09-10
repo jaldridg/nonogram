@@ -190,16 +190,20 @@ void Board::deleteBlock(block * b, line * l) {
 
     printf("\n\ndeleteBlock\n");
     printAvailableBlocks();
-    if (tempFunctionCount2 > 8) {
+    if (tempFunctionCount2 > 9) {
         printLines();
         printBlocks();
     }
     checkBlocks();
 }
 
-// Splits a block as if the mask indecies are a block which is being cut out of the given block 
+// Splits a block as if the mask indices are a block which is being cut out of the given block 
 void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask_index) {
     assert(lower_mask_index <= upper_mask_index);
+
+    // Skip when block and mask do not intersect
+    if (b->first_tile > upper_mask_index) { return; }
+    if (b->last_tile < lower_mask_index) { return; }
 
     // Make a new block which comes before the current one
     if (lower_mask_index > b->first_tile) {
@@ -311,7 +315,7 @@ void Board::mergeBlock(block * b, line * l) {
 
     printf("\n\nmergeBlock\n");
     printAvailableBlocks();
-    if (tempFunctionCount2 > 8) {
+    if (tempFunctionCount2 > 9) {
         printLines();
         printBlocks();
     }
@@ -336,7 +340,7 @@ void Board::setTile(line * l, int index, Tilestate state) {
 
     printf("\n\nsetTile\n");
     printAvailableBlocks();
-    if (tempFunctionCount2 > 8) {
+    if (tempFunctionCount2 > 9) {
         printLines();
         printBlocks();
     }
@@ -464,7 +468,7 @@ void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate st
     if (state == FILLED) { l->filled_tiles += diff_count; }
     */
 
-   // Find the first block which intersects with the indices we're interested in
+    // Find the first block which intersects with the indices we're interested in
 
     // Try to split all blocks in the line
     block * curr_block = l->block_head;
@@ -503,7 +507,7 @@ void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate st
 
     printf("\n\nsetTileRange\n");
     printAvailableBlocks();
-    if (tempFunctionCount2 > 8) {
+    if (tempFunctionCount2 > 9) {
         printLines();
         printBlocks();
     }
