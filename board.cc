@@ -190,7 +190,7 @@ void Board::deleteBlock(block * b, line * l) {
 
     printf("\n\ndeleteBlock\n");
     printAvailableBlocks();
-    if (tempFunctionCount == 3) {
+    if (tempFunctionCount2 > 8) {
         printLines();
         printBlocks();
     }
@@ -225,7 +225,7 @@ void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask
         b->prev = &blocks[open_index];
         // Set new block head if necessary
         if (!split_block.prev) {
-            l->block_head = blocks + num_blocks;
+            l->block_head = &blocks[open_index];
         }
     }
     // Make a new block which comes after the current one
@@ -252,13 +252,13 @@ void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask
         b->next = &blocks[open_index];
         // Set new block tail if necessary
         if (!split_block.next) {
-            l->block_tail = blocks + num_blocks;
+            l->block_tail = &blocks[open_index];
         }
     }
 
-    printf("\n\nsplitBlock\n");
+    printf("\n\nsplitBlock (%d)\n", ++tempFunctionCount2);
     printAvailableBlocks();
-    if (tempFunctionCount == 3) {
+    if (tempFunctionCount2 > 8) {
         printLines();
         printBlocks();
     }
@@ -266,10 +266,6 @@ void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask
 }
 
 void Board::mergeBlock(block * b, line * l) {
-    if (tempFunctionCount2 == 3) {
-        printLines();
-        printBlocks();
-    }
     // Get compatible blocks before this block
     int first_index = b->first_tile;
     block * first_block = b;
@@ -313,16 +309,9 @@ void Board::mergeBlock(block * b, line * l) {
         l->block_count--;
     }
 
-    // If we merged the first block, we need to update the head
-    if (first_index == 0) {
-        l->block_head = last_block;
-    }
-    // Last block should now encompass all of the blocks that were removed
-    last_block->first_tile = first_index;
-
-    printf("\n\nmergeBlock (%d)\n", ++tempFunctionCount2);
+    printf("\n\nmergeBlock\n");
     printAvailableBlocks();
-    if (tempFunctionCount == 3) {
+    if (tempFunctionCount2 > 8) {
         printLines();
         printBlocks();
     }
@@ -347,7 +336,7 @@ void Board::setTile(line * l, int index, Tilestate state) {
 
     printf("\n\nsetTile\n");
     printAvailableBlocks();
-    if (tempFunctionCount == 3) {
+    if (tempFunctionCount2 > 8) {
         printLines();
         printBlocks();
     }
@@ -514,7 +503,7 @@ void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate st
 
     printf("\n\nsetTileRange\n");
     printAvailableBlocks();
-    if (tempFunctionCount == 3) {
+    if (tempFunctionCount2 > 8) {
         printLines();
         printBlocks();
     }

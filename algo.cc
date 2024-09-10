@@ -22,7 +22,7 @@ void Algo::run2() {
         board->tempFunctionCount++;
         printf("PASS %d\n", i + 1);
         runCertaintyStrategy(l);
-        if (board->tempFunctionCount == 3) {
+        if (board->tempFunctionCount2 > 8) {
             board->printLines();
             board->printBlocks();
         }
@@ -122,7 +122,7 @@ void Algo::runCertaintyStrategy(line * l) {
 
     printf("\n\nrunCertaintyStrategy\n");
     board->printAvailableBlocks();
-    if (board->tempFunctionCount == 3) {
+    if (board->tempFunctionCount2 > 9) {
         board->printLines();
         board->printBlocks();
     }
