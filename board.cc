@@ -190,7 +190,7 @@ void Board::deleteBlock(block * b, line * l) {
 
     printf("\n\ndeleteBlock\n");
     printAvailableBlocks();
-    if (tempFunctionCount2 > 9) {
+    if (tempFunctionCount2 > 10) {
         printLines();
         printBlocks();
     }
@@ -262,7 +262,7 @@ void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask
 
     printf("\n\nsplitBlock (%d)\n", ++tempFunctionCount2);
     printAvailableBlocks();
-    if (tempFunctionCount2 > 8) {
+    if (tempFunctionCount2 > 10) {
         printLines();
         printBlocks();
     }
@@ -315,7 +315,7 @@ void Board::mergeBlock(block * b, line * l) {
 
     printf("\n\nmergeBlock\n");
     printAvailableBlocks();
-    if (tempFunctionCount2 > 9) {
+    if (tempFunctionCount2 > 10) {
         printLines();
         printBlocks();
     }
@@ -340,7 +340,7 @@ void Board::setTile(line * l, int index, Tilestate state) {
 
     printf("\n\nsetTile\n");
     printAvailableBlocks();
-    if (tempFunctionCount2 > 9) {
+    if (tempFunctionCount2 > 10) {
         printLines();
         printBlocks();
     }
@@ -408,6 +408,8 @@ void Board::checkBlocks() {
             // Make sure there are no loops
             assert(b->prev != b);
             assert(b->next != b);
+            // Make sure first <= last
+            assert(b->first_tile <= b->last_tile);
             total_count += b->block_length;
             // Make sure the next block comes right after the current one
             if (b->next) {
@@ -507,7 +509,7 @@ void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate st
 
     printf("\n\nsetTileRange\n");
     printAvailableBlocks();
-    if (tempFunctionCount2 > 9) {
+    if (tempFunctionCount2 > 10) {
         printLines();
         printBlocks();
     }
