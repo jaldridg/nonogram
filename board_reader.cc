@@ -81,24 +81,7 @@ BoardReader::BoardReader() {
         i++;
     }
 
-    delete clue_buffer;
-
-    // Clue printing
-    /*
-    printf("Rows\n");
-    for (int i = 0; i < row_clues.size(); i++) {
-        for (int j = 0; j < row_clues.at(i).size(); j++) {
-            printf("row clue.at(%d).at(%d): %d\n", i, j, row_clues.at(i).at(j));
-        }
-    }
-
-    printf("Columns\n");
-    for (int i = 0; i < col_clues.size(); i++) {
-        for (int j = 0; j < col_clues.at(i).size(); j++) {
-            printf("col clue.at(%d).at(%d): %d\n", i, j, col_clues.at(i).at(j));
-        }
-    }
-    */    
+    delete clue_buffer;  
 
     assert(row_clues.size() == col_clues.size());
 }

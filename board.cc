@@ -14,20 +14,17 @@ Board::Board() {
     rows = new line[size];
     cols = new line[size];
 
-    int block_capacity = 2 * size * size;
-    blocks = new block[block_capacity];
+    int blockCapacity = size * size * 2;
+    blocks = new block[blockCapacity];
     num_blocks = 0;
 
     // Start the list of open blocks for reallocation during the algorithm
     open_indices = std::vector<int>();
     int initial_indices = 2 * size;
-    int leftover_indices = block_capacity - initial_indices;
-    for (int i = initial_indices; i < block_capacity; i++) {
+    int leftover_indices = blockCapacity - initial_indices;
+    for (int i = initial_indices; i < blockCapacity; i++) {
         open_indices.push_back(i);
     }
-
-    tempFunctionCount = 0;
-    tempFunctionCount2 = 0;
 
     // Initialize default line values
     for (int i = 0; i < size; i++) {
@@ -323,29 +320,6 @@ void Board::setTile(line * l, int index, Tilestate state) {
 void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate state) {
     assert(start_index <= stop_index);
 
-    // TILE APPROACH
-    /*
-    for (int i = start_index; i <= stop_index; i++) {
-        struct line opposite_line = l->is_row ? cols[i] : rows[i];
-        if (opposite_line.tiles[l->line_number] != state) {
-            opposite_line.tiles[l->line_number] = state;
-            opposite_line.unknown_tiles--;
-            if (state == FILLED) { opposite_line.filled_tiles++; }
-        }
-    }
-
-    // Set the range in the line
-    int diff_count = 0;
-    for (int i = start_index; i <= stop_index; i++) {
-        if (l->tiles[i] != state) {
-            l->tiles[i] = state;
-            diff_count++;
-        }
-    }
-    l->unknown_tiles -= diff_count;
-    if (state == FILLED) { l->filled_tiles += diff_count; }
-    */
-
     // Find the first block which intersects with the indices we're interested in
 
     // Try to split all blocks in the line
@@ -385,20 +359,6 @@ void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate st
 }
 
 void Board::completeLine(line * l) {
-    // TILE APPROACH
-    /*
-    for (int i = 0; i < size; i++) {
-        if (line->tiles[i].state == UNKNOWN) {
-            line->tiles[i].state = NONE;
-
-            struct line l = line->is_row ? cols[i] : rows[i];
-            l.tiles[line->line_number].state = NONE;
-            l.unknown_tiles--;
-        }
-    }
-    */
-
-    // BLOCK APPROACH
     // Loop over blocks
     block * curr_block = l->block_head;
     for (int i = 0; i < l->block_count; i++) {

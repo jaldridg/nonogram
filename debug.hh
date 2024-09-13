@@ -5,6 +5,10 @@
 
 class Debug {
     public:
+        int tempVariable1 = 0;
+        int tempVariable2 = 0;
+        int tempVariable3 = 0;
+
         Debug(Board  * board);
 
         void printLines();

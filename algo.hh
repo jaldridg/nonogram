@@ -9,7 +9,6 @@ class Algo {
 public:
     Algo(Board * board);
 
-    void run2();
     void run();
 
 private:

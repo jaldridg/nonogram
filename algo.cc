@@ -7,24 +7,6 @@ Algo::Algo(Board * board) {
     Algo::board = board;
 }
 
-void Algo::run2() {
-    // Fill the queue with all rows and cols
-    for(int i = 0; i < board->size; i++) {
-        queue.push(board->rows + i);
-        queue.push(board->cols + i);
-    }
-
-    // Do a one time certainty sweep through the puzzle
-    int total_steps = queue.size();
-    for (int i = 0; i < queue.size(); i++) {
-        line * l = queue.front();
-        board->tempFunctionCount++;
-        runCertaintyStrategy(l);
-        queue.pop();
-        queue.push(l);
-    }
-}
-
 void Algo::run() {
     // Fill the queue with all rows and cols
     for(int i = 0; i < board->size; i++) {
@@ -51,9 +33,11 @@ void Algo::run() {
         bool line_updated = false;
         if (attemptLineCompletion(l)) {
             line_updated = true;
-        } else if (runGrowthStrategyBeginning(l) || runGrowthStrategyEnd(l) /* || strategy 3 || strategy 4 */) {
-            line_updated = true;
-        } 
+        }
+        
+        // Run strategies
+        if (runGrowthStrategyBeginning(l)) { line_updated = true; } 
+        if (runGrowthStrategyEnd(l)) { line_updated = true; }
         
         // See if our strategies completed the line
         if (attemptLineCompletion(l)) {
@@ -62,11 +46,7 @@ void Algo::run() {
             queue.push(l);
         }       
 
-        if (line_updated) {
-            no_solution_counter = 0;         
-        } else {
-            no_solution_counter++;
-        }
+        no_solution_counter += !line_updated;
 
         total_steps++;
         if (no_solution_counter == queue.size()) {
@@ -80,8 +60,8 @@ void Algo::run() {
 void Algo::runCertaintyStrategy(line * l) {
     std::vector<int> * clues = l->clues;
 
-    // Run certainty rule on each block in a line based 
-    // on the space taken by blocks before and after
+    // Run certainty rule on each block in a line based...
+    // ...on the space taken by blocks before and after
     for (int i = 0; i < clues->size(); i++) {
         // Calculate the size of blocks before current block
         int size_before = 0;
@@ -103,7 +83,7 @@ void Algo::runCertaintyStrategy(line * l) {
         /* 
         Certainty Rule:
             If the size of the block is at least half the size of the range,
-            we can be certain that parts of the block are in some squares
+            we can be certain that parts of the block are in some cells
         */
         if (clues->at(i) > block_size_range / 2) {
             int edge_uncertainty = block_size_range - clues->at(i);
@@ -118,15 +98,6 @@ void Algo::runCertaintyStrategy(line * l) {
 // Attempt growth from start of the line
 bool Algo::runGrowthStrategyBeginning(line * l) {
     if (l->unknown_tiles == 0) { return false; }
-
-    /*
-    printf("Growth Strat Beginning\n");
-    printf("Row?: %d, id: %d\n", l->is_row, l->line_number);
-    if (l->clues->size() == 1) { printf("Clues: %d\n", l->clues->at(0)); }
-    if (l->clues->size() == 2) { printf("Clues: %d %d\n", l->clues->at(0), l->clues->at(1)); }
-    board->print();
-    printf("\n\n");
-    */
     
     // Traverse until the first unknown tile
     int i = 0;
