@@ -58,14 +58,6 @@ public:
 
     void print();
 
-    void printLines();
-
-    void printBlocks();
-
-    void printAvailableBlocks();
-
-    void checkBlocks();
-
     void deleteBlock(block * b, line * l);
 
     void splitBlock(block * b, line * l, int lower_mask_index, int upper_mask_index);

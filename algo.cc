@@ -1,4 +1,3 @@
-
 #include "algo.hh"
 #include "board.hh"
 
@@ -20,12 +19,7 @@ void Algo::run2() {
     for (int i = 0; i < queue.size(); i++) {
         line * l = queue.front();
         board->tempFunctionCount++;
-        printf("PASS %d\n", i + 1);
         runCertaintyStrategy(l);
-        if (board->tempFunctionCount > 1) {
-            board->printLines();
-            board->printBlocks();
-        }
         queue.pop();
         queue.push(l);
     }
@@ -119,9 +113,6 @@ void Algo::runCertaintyStrategy(line * l) {
             board->print();
         }
     }
-
-    printf("\nrunCertaintyStrategy\n");
-    board->checkBlocks();
 }
 
 // Attempt growth from start of the line

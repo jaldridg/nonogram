@@ -12,7 +12,8 @@
                 "board.cc",
                 "board_reader.cc",
                 "algo.cc",
-                "nonogram.cc"
+                "nonogram.cc",
+                "debug.cc"
             ],
             "options": {
                 "cwd": "${fileDirname}"
@@ -34,7 +35,8 @@
                 "board.o",
                 "board_reader.o",
                 "algo.o",
-                "nonogram.o"
+                "nonogram.o",
+                "debug.o"
             ],
             "options": {
                 "cwd": "${fileDirname}"

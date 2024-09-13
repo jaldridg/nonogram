@@ -1,10 +1,9 @@
+#include "board.hh"
+#include "board_reader.hh"
 
 #include <stdio.h>
 #include <string>
 #include <assert.h>
-
-#include "board.hh"
-#include "board_reader.hh"
 
 Board::Board() {
     BoardReader reader;
@@ -187,13 +186,6 @@ void Board::deleteBlock(block * b, line * l) {
     open_indices.push_back(deleted_block_index);
 
     num_blocks--;
-
-    printf("\ndeleteBlock\n");
-    if (tempFunctionCount > 1) {
-        printLines();
-        printBlocks();
-    }
-    checkBlocks();
 }
 
 // Splits a block as if the mask indices are a block which is being cut out of the given block 
@@ -264,13 +256,6 @@ void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask
             l->block_tail = &blocks[open_index];
         }
     }
-
-    printf("\nsplitBlock (%d)\n", ++tempFunctionCount2);
-    if (tempFunctionCount > 1) {
-        printLines();
-        printBlocks();
-    }
-    checkBlocks();
 }
 
 void Board::mergeBlock(block * b, line * l) {
@@ -314,13 +299,6 @@ void Board::mergeBlock(block * b, line * l) {
         deleteBlock(last_block->prev, l);
         l->block_count--;
     }
-
-    printf("\nmergeBlock\n");
-    if (tempFunctionCount2 > 1) {
-        printLines();
-        printBlocks();
-    }
-    checkBlocks();
 }
 
 // Sets a tile to a given tilestate by splitting blocks if necessary
@@ -338,108 +316,6 @@ void Board::setTile(line * l, int index, Tilestate state) {
     curr_block->tile_state = state;
     mergeBlock(curr_block, l);
     l->unknown_tiles--;
-
-    printf("\nsetTile\n");
-    if (tempFunctionCount2 > 1) {
-        printLines();
-        printBlocks();
-    }
-    checkBlocks();
-}
-
-void Board::printLines() {
-    // Horizontal lines
-    printf("HORIZONTAL LINES\n");
-    for (int i = 0; i < size; i++) {
-        line l = rows[i];
-        printf("Line #%d:\n", i + 1);
-        block * b = l.block_head;
-        do {
-            int block_number = (int) (b - blocks);
-            printf("\tBlock #%d: (%x) - %d\n", block_number + 1, b, b->block_length);
-            printf("\t\t%d [%c] tiles ranging from tiles %d to %d\n", b->block_length, b->tile_state, b->first_tile, b->last_tile);
-            printf("\t\tprev: %x\t\tnext: %x\n", b->prev, b->next);
-            b = b->next;
-        } while (b);
-    }
-
-    // Vertical lines
-    printf("\nVERTICAL LINES\n");
-    for (int i = 0; i < size; i++) {
-        line l = cols[i];
-        printf("Line #%d:\n", i + 1);
-        block * b = l.block_head;
-        do {
-            int block_number = (int) (b - blocks);
-            printf("\tBlock #%d: (%x) - %d\n", block_number + 1, b, b->block_length);
-            printf("\t\t%d [%c] tiles ranging from tiles %d to %d\n", b->block_length, b->tile_state, b->first_tile, b->last_tile);
-            printf("\t\tprev: %x\t\tnext: %x\n", b->prev, b->next);
-            b = b->next;
-        } while (b);
-    }
-}
-
-void Board::printBlocks() {
-    for (int i = 0; i < size * size * 2; i++) {
-        block b = blocks[i];
-        printf("Block #%d (%x) - %d\n", i + 1, &blocks[i], b.block_length);
-        printf("\t%d [%c] tiles ranging from tiles %d to %d\n", b.block_length, b.tile_state, b.first_tile, b.last_tile);
-        printf("\tprev: %x\t\tnext: %x\n", b.prev, b.next);
-    }
-    printAvailableBlocks();
-}
-
-void Board::printAvailableBlocks() {
-    printf("Avilable blocks: ");
-    for (int i = 0; i < open_indices.size(); i++) {
-        printf("%d ", open_indices.at(i) + 1);
-    }
-    printf("\n");
-}
-
-void Board::checkBlocks() {
-    for (int i = 0; i < size; i++) {
-        line l = rows[i];
-        block * b = l.block_head;
-        int total_count = 0;
-        do {
-            // Make sure count matches the range presented
-            assert(b->last_tile - b->first_tile + 1 == b->block_length);
-            // Make sure there are no loops
-            assert(b->prev != b);
-            assert(b->next != b);
-            // Make sure first <= last
-            assert(b->first_tile <= b->last_tile);
-            total_count += b->block_length;
-            // Make sure the next block comes right after the current one
-            if (b->next) {
-                assert(b->next->first_tile == b->last_tile + 1);
-            }
-            b = b->next;
-        } while (b);
-        // Make sure block total count is the size of board
-        assert(total_count == size);
-    }
-    for (int i = 0; i < size; i++) {
-        line l = cols[i];
-        block * b = l.block_head;
-        int total_count = 0;
-        do {
-            // Make sure count matches the range presented
-            assert(b->last_tile - b->first_tile + 1 == b->block_length);
-            // Make sure there are no loops
-            assert(b->prev != b);
-            assert(b->next != b);
-            total_count += b->block_length;
-            // Make sure the next block comes right after the current one
-            if (b->next) {
-                assert(b->next->first_tile == b->last_tile + 1);
-            }
-            b = b->next;
-        } while (b);
-        // Make sure block total count is the size of board
-        assert(total_count == size);
-    }
 }
 
 // Fills the line with the given state using the limits
@@ -506,13 +382,6 @@ void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate st
     // Handle case when there's only one block
     block * to_merge = curr_block->prev ? curr_block->prev : curr_block;
     mergeBlock(to_merge, l);
-
-    printf("\nsetTileRange\n");
-    if (tempFunctionCount2 > 1) {
-        printLines();
-        printBlocks();
-    }
-    checkBlocks();
 }
 
 void Board::completeLine(line * l) {
