@@ -4,6 +4,8 @@
 #include <assert.h>
 #include <stdio.h>
 
+Board * Debug::board;
+
 Debug::Debug(Board * b) {
     board = b;
 }

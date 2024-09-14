@@ -9,18 +9,18 @@ class Debug {
         int tempVariable2 = 0;
         int tempVariable3 = 0;
 
-        Debug(Board  * board);
+        Debug(Board * board);
 
-        void printLines();
+        static void printLines();
 
-        void printBlocks();
+        static void printBlocks();
 
-        void printAvailableBlocks();
+        static void printAvailableBlocks();
 
-        void checkBlocks();
+        static void checkBlocks();
 
     private:
-        Board * board;
+        static Board * board;
 };
 
 #endif

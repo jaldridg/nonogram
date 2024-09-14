@@ -1,5 +1,6 @@
 #include "algo.hh"
 #include "board.hh"
+#include "debug.hh"
 
 #include <stdio.h>
 
@@ -22,15 +23,17 @@ void Algo::run() {
         queue.pop();
         queue.push(l);
     }
-    /*
+
     // Main algorithm loop
     int no_solution_counter = 0;
     while (queue.size() != 0) {
         line * l = queue.front();
         queue.pop();
-
+        Debug::printLines();
+        Debug::printBlocks();
         // See if our strategies completed the line
         bool line_updated = false;
+        
         if (attemptLineCompletion(l)) {
             line_updated = true;
         } else {
@@ -38,8 +41,8 @@ void Algo::run() {
         }
         
         // Run strategies
-        if (runGrowthStrategyBeginning(l)) { line_updated = true; } 
-        if (runGrowthStrategyEnd(l)) { line_updated = true; }
+        // if (runGrowthStrategyBeginning(l)) { line_updated = true; } 
+        // if (runGrowthStrategyEnd(l)) { line_updated = true; }
             
 
         no_solution_counter += !line_updated;
@@ -54,7 +57,6 @@ void Algo::run() {
             return;
         }
     }
-    */
 }
 
 void Algo::runCertaintyStrategy(line * l) {
@@ -90,7 +92,6 @@ void Algo::runCertaintyStrategy(line * l) {
             int lower_limit = size_before + edge_uncertainty;
             int upper_limit = size_before + block_size_range - 1 - edge_uncertainty;
             board->setTileRange(l, lower_limit, upper_limit, FILLED);
-            board->print();
         }
     }
 }
@@ -151,7 +152,7 @@ bool Algo::runGrowthStrategyBeginning(line * l) {
         }
 
         if (can_fill) {
-            int upper_cell = i + l->clues->at(clue_index) - gap_length - 1 ;
+            int upper_cell = i + l->clues->at(clue_index) - gap_length - 1;
             board->setTileRange(l, i, upper_cell, FILLED);
         }
     }
@@ -164,13 +165,6 @@ bool Algo::runGrowthStrategyBeginning(line * l) {
 // Attempt grwoth from the end of the line
 bool Algo::runGrowthStrategyEnd(line * l) {
     if (l->unknown_tiles == 0) { return false; }
-
-    printf("Growth Strat Ending\n");
-    printf("Row?: %d, id: %d\n", l->is_row, l->line_number);
-    if (l->clues->size() == 1) { printf("Clues: %d\n", l->clues->at(0)); }
-    if (l->clues->size() == 2) { printf("Clues: %d %d\n", l->clues->at(0), l->clues->at(1)); }
-    board->print();
-    printf("\n\n");
 
     // Traverse until the first unknown tile
     int i = board->size - 1;

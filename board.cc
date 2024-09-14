@@ -315,6 +315,9 @@ void Board::setTile(line * l, int index, Tilestate state) {
         curr_block->tile_state = state;
         mergeBlock(curr_block, l);
         l->unknown_tiles--;
+        if (state == FILLED) {
+            l->filled_tiles++;
+        }
     }
 }
 
@@ -340,6 +343,10 @@ void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate st
             // Blocks below stop_index
             if (curr_block->last_tile <= stop_index) {
                 curr_block->tile_state = state;
+                l->unknown_tiles -= curr_block->block_length;
+                if (state == FILLED) {
+                    l->filled_tiles += curr_block->block_length;
+                }
                 // Fix the blocks in the opposite line
                 for (int i = curr_block->first_tile; i <= curr_block->last_tile; i++) {
                     line * opposite_line = l->is_row ? (cols + i) : (rows + i);
@@ -361,6 +368,7 @@ void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate st
     mergeBlock(to_merge, l);
 }
 
+// Assumes the line has all filled tiles and sets the unknown blocks to none
 void Board::completeLine(line * l) {
     // Loop over blocks
     block * curr_block = l->block_head;
@@ -375,6 +383,7 @@ void Board::completeLine(line * l) {
         }
         curr_block = curr_block->next;
     }
+
     // Attempt to merge by looping over the blocks
     // We have to check the whole line since we updated mutiple blocks)
     // After merging we should jump two more blocks and try to merge more
