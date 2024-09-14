@@ -22,7 +22,7 @@ void Algo::run() {
         queue.pop();
         queue.push(l);
     }
-
+    /*
     // Main algorithm loop
     int no_solution_counter = 0;
     while (queue.size() != 0) {
@@ -33,28 +33,28 @@ void Algo::run() {
         bool line_updated = false;
         if (attemptLineCompletion(l)) {
             line_updated = true;
+        } else {
+            queue.push(l);
         }
         
         // Run strategies
         if (runGrowthStrategyBeginning(l)) { line_updated = true; } 
         if (runGrowthStrategyEnd(l)) { line_updated = true; }
-        
-        // See if our strategies completed the line
-        if (attemptLineCompletion(l)) {
-            line_updated = true;
-        } else {
-            queue.push(l);
-        }       
+            
 
         no_solution_counter += !line_updated;
+        if (line_updated) {
+            no_solution_counter = 0;
+        }
 
         total_steps++;
         if (no_solution_counter == queue.size()) {
             printf("Algorithm has exhausted its techniques over %d steps!\n", total_steps);
-            printf("%d lines were remaining\n", queue.size());
+            printf("%d lines remain unsolved\n", queue.size());
             return;
         }
     }
+    */
 }
 
 void Algo::runCertaintyStrategy(line * l) {

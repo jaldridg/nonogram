@@ -1,4 +1,4 @@
-Strategies to implement
+Optimization: Go back to the trivial 2s grid and you'll see some unecessary splits/merges/deletes
 
 Algo.c function need to run in block operations
 

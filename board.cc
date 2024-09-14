@@ -309,10 +309,13 @@ void Board::setTile(line * l, int index, Tilestate state) {
         curr_block = curr_block->next;
     }
 
-    splitBlock(curr_block, l, index, index);
-    curr_block->tile_state = state;
-    mergeBlock(curr_block, l);
-    l->unknown_tiles--;
+    // Only need to set if state hasn't been previously set
+    if (curr_block->tile_state == UNKNOWN) {
+        splitBlock(curr_block, l, index, index);
+        curr_block->tile_state = state;
+        mergeBlock(curr_block, l);
+        l->unknown_tiles--;
+    }
 }
 
 // Fills the line with the given state using the limits
