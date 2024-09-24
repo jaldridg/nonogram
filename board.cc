@@ -301,6 +301,9 @@ void Board::mergeBlock(block * b, line * l) {
 // Sets a tile to a given tilestate by splitting blocks if necessary
 // Note: This does not correct the opposite dimension but should be used as a helper
 void Board::setTile(line * l, int index, Tilestate state) {
+    if (!l->is_row && l->line_number == 2) {
+        int i = 0;
+    }
     assert(index < size);
 
     // Find index by looping over blocks
@@ -324,6 +327,9 @@ void Board::setTile(line * l, int index, Tilestate state) {
 // Fills the line with the given state using the limits
 // Starting index and stopping index are inclusive
 void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate state) {
+    if (!l->is_row && l->line_number == 2) {
+        int i = 0;
+    }
     assert(start_index <= stop_index);
 
     // Find the first block which intersects with the indices we're interested in
@@ -342,15 +348,18 @@ void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate st
         if (curr_block->first_tile >= start_index) {
             // Blocks below stop_index
             if (curr_block->last_tile <= stop_index) {
-                curr_block->tile_state = state;
-                l->unknown_tiles -= curr_block->block_length;
-                if (state == FILLED) {
-                    l->filled_tiles += curr_block->block_length;
-                }
-                // Fix the blocks in the opposite line
-                for (int i = curr_block->first_tile; i <= curr_block->last_tile; i++) {
-                    line * opposite_line = l->is_row ? (cols + i) : (rows + i);
-                    setTile(opposite_line, l->line_number, state);
+                // Only set if blocks haven't already been solved
+                if (curr_block->tile_state == UNKNOWN) {
+                    curr_block->tile_state = state;
+                    l->unknown_tiles -= curr_block->block_length;
+                    if (state == FILLED) {
+                        l->filled_tiles += curr_block->block_length;
+                    }
+                    // Fix the blocks in the opposite line
+                    for (int i = curr_block->first_tile; i <= curr_block->last_tile; i++) {
+                        line * opposite_line = l->is_row ? (cols + i) : (rows + i);
+                        setTile(opposite_line, l->line_number, state);
+                    }
                 }
             } else {
                 // Stop when we pass the desired range
