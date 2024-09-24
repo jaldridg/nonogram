@@ -6,7 +6,7 @@
 
 Board * Debug::board;
 
-Debug::Debug(Board * b) {
+void Debug::setBoard(Board * b) {
     board = b;
 }
 

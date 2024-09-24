@@ -1,6 +1,6 @@
 Optimization: Go back to the trivial 2s grid and you'll see some unecessary splits/merges/deletes
 
-Algo.c function need to run in block operations
+Algo.c functions need to run in block operations
 
 See if we can turn lineGrowth beginning and end into one function with parameters that "select" whether to do end or beginning
 

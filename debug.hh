@@ -9,7 +9,7 @@ class Debug {
         int tempVariable2 = 0;
         int tempVariable3 = 0;
 
-        Debug(Board * board);
+        static void setBoard(Board * board);
 
         static void printLines();
 

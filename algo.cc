@@ -29,8 +29,8 @@ void Algo::run() {
     while (queue.size() != 0) {
         line * l = queue.front();
         queue.pop();
-        Debug::printLines();
-        Debug::printBlocks();
+        //Debug::printLines();
+        //Debug::printBlocks();
         // See if our strategies completed the line
         bool line_updated = false;
         
@@ -237,6 +237,11 @@ bool Algo::attemptLineCompletion(line * l) {
 
     // We know we're done if we've filled the number of tiles given by clues
     bool done = tile_total == l->filled_tiles;
-    if (done) { board->completeLine(l); }
+    if (done) { 
+        Debug::printLines();
+        Debug::printBlocks();
+        board->completeLine(l);
+        board->print();
+    }
     return done;
 }

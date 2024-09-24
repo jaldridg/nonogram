@@ -377,8 +377,8 @@ void Board::completeLine(line * l) {
             curr_block->tile_state = NONE;
             // Loop over each tile in the block and correct the opposite dimension
             for (int j = curr_block->first_tile; j <= curr_block->last_tile; j++) {
-                line * opposite_line = l->is_row ? (cols + i) : (rows + i);
-                setTile(opposite_line, j, NONE);
+                line * opposite_line = l->is_row ? (cols + j) : (rows + j);
+                setTile(opposite_line, l->line_number, NONE);
             }
         }
         curr_block = curr_block->next;
