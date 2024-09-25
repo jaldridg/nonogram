@@ -56,8 +56,8 @@ Board::Board() {
 
         // Initialize our blocks
         // This involves our block storage, initial blocks, and their linked lists
-        block initial_row_block = block { 0, size - 1, size, UNKNOWN, NULL, NULL };
-        block initial_col_block = block { 0, size - 1, size, UNKNOWN, NULL, NULL };
+        block initial_row_block = block { 0, size - 1, size, -1, UNKNOWN, NULL, NULL };
+        block initial_col_block = block { 0, size - 1, size, -1, UNKNOWN, NULL, NULL };
         block * initial_row_block_ptr = blocks + num_blocks;
         block * initial_col_block_ptr = blocks + num_blocks + 1;
         blocks[num_blocks++] = initial_row_block;
@@ -199,10 +199,11 @@ void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask
         int first = b->first_tile;
         int last = lower_mask_index - 1;
         int length = last - first + 1;
+        int allegiance = -1;
         Tilestate ts = b->tile_state;
         block * prev_block = b->prev;
         block * next_block = b;
-        block split_block = block { first, last, length, ts, prev_block, next_block };
+        block split_block = block { first, last, length, allegiance, ts, prev_block, next_block };
 
         // Add to block list
         int open_index = open_indices.back();
@@ -229,10 +230,11 @@ void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask
         int first = upper_mask_index + 1;
         int last = b->last_tile;
         int length = last - first + 1;
+        int allegiance = -1;
         Tilestate ts = b->tile_state;
         block * prev_block = b;
         block * next_block = b->next;
-        block split_block = block { first, last, length, ts, prev_block, next_block };
+        block split_block = block { first, last, length, allegiance, ts, prev_block, next_block };
 
         // Add to block list
         int open_index = open_indices.back();

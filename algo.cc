@@ -29,8 +29,6 @@ void Algo::run() {
     while (queue.size() != 0) {
         line * l = queue.front();
         queue.pop();
-        //Debug::printLines();
-        //Debug::printBlocks();
         // See if our strategies completed the line
         bool line_updated = false;
         
@@ -57,6 +55,24 @@ void Algo::run() {
             return;
         }
     }
+}
+
+void Algo::findBlockAllegiance(line * l) {
+    /*
+    - One clue
+        - If there's one clue - all filled blocks belong to that clue
+
+    - Size related
+        - If the block in question is only smaller than one clue - it must be the large clue
+    - Trivial   
+        - If block is the first/last filled tile in a line (so it's against a wall or NONE on the edge), it must belong to the first/last clue
+    - Connections
+        - If the connection of two blocks exceeds the max clue size, the blocks must be separate
+        - If there's a NONE block between two FILLED blocks, they can't connect so the blocks must belong to different clues
+    - Theoretical solves
+        - Assume block belongs to a certain clue and see if the puzzle is possible, if not, it's any of the remaining clues
+
+    */
 }
 
 void Algo::runCertaintyStrategy(line * l) {
@@ -113,10 +129,9 @@ bool Algo::runGrowthStrategyBeginning(line * l) {
                 clue_index++;
                 filled_count = 0;
 
-                // If the next cell is unknown, it must actually be NONE
-                // Grow it out so we can try to grow other blocks - and avoid edge cases :)
+                // If the tiles are as long as the clue we need to set NONE to "cap" it off
                 if (l->tiles[i + 1] == UNKNOWN) {
-                    board->setTileRange(l, i + 1, i + 1, NONE);
+                    board->setTile(l, i + 1, NONE);
                     // Edge case where we complete the line by completing the NONE tile
                     if (i + 1 == board->size - 1) { return true; }
                 }
@@ -238,10 +253,7 @@ bool Algo::attemptLineCompletion(line * l) {
     // We know we're done if we've filled the number of tiles given by clues
     bool done = tile_total == l->filled_tiles;
     if (done) { 
-        Debug::printLines();
-        Debug::printBlocks();
         board->completeLine(l);
-        board->print();
     }
     return done;
 }
