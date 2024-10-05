@@ -18,7 +18,7 @@ struct block {
     int first_tile; // The index of the first tile in the block
     int last_tile;  // The index of the last tile in the block
     int block_length;
-    int clue_allegiance_index; // The index of the clue to which the block belongs
+    int belongs_to; // The index of the clue to which the block belongs
     Tilestate tile_state;
     block * prev;
     block * next;

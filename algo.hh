@@ -19,7 +19,7 @@ private:
 
     void runCertaintyStrategy(line * l);
 
-    void findBlockAlliegance(line * l);
+    void findBlockAllegiance(line * l);
 
     bool runGrowthStrategyBeginning(line * l);
     bool runGrowthStrategyEnd(line * l);

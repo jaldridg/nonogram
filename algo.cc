@@ -57,22 +57,140 @@ void Algo::run() {
     }
 }
 
-void Algo::findBlockAllegiance(line * l) {
+void Algo::findBlockClues(line * l) {
     /*
-    - One clue
-        - If there's one clue - all filled blocks belong to that clue
+    Check if there's only one clue
+	If so all filled blocks belong to that clue
 
-    - Size related
-        - If the block in question is only smaller than one clue - it must be the large clue
-    - Trivial   
-        - If block is the first/last filled tile in a line (so it's against a wall or NONE on the edge), it must belong to the first/last clue
-    - Connections
-        - If the connection of two blocks exceeds the max clue size, the blocks must be separate
-        - If there's a NONE block between two FILLED blocks, they can't connect so the blocks must belong to different clues
-    - Theoretical solves
-        - Assume block belongs to a certain clue and see if the puzzle is possible, if not, it's any of the remaining clues
-
+    Loop over blocks - 
+        Keeping track of the following
+            Prev block if there is one
+            The lowest and highest possible clue number based on if the clues can fit in the space before or after the current block
+        First thing to check for each block
+                If the block in question is smaller than only one clue - it must be the large clue
+        You can determine that two blocks belong to separate clues if
+            The connection of two blocks would exceed the max clue size
+            There's a none block between the two blocks
     */
+
+    // Only one clue -> set all blocks to that clue
+    block * curr_block = l->block_head;
+    if (l->clues->size() == 1) {
+        while (curr_block) {
+            if (curr_block->tile_state == FILLED) {
+                curr_block->belongs_to = 0;
+            }
+            curr_block = curr_block->next;
+        }
+    }
+
+    curr_block = l->block_head;
+    block * prev_filled_block = NULL;
+    int prev_first_possible_clue = -1;
+    int prev_last_possible_clue = -1;
+    // The indices defining a range of the clues that are possible with the given block
+    int first_possible_clue = 0;
+    int last_possible_clue = l->clues->size() - 1;
+    bool none_block_between = false;
+    /*
+    // TODO: Use these variables to check: "If the block in question is smaller than only one clue - it must be the large clue"
+    int largest_unmatched_clue_index = 
+    int second_largest_unmatched_clue_index = 
+    */
+    // 
+    while (curr_block) {
+        if (curr_block->tile_state != FILLED) {
+            if (curr_block->tile_state == NONE) {
+                none_block_between = true;
+            }
+            curr_block = curr_block->next;
+            continue;
+        }
+        /*
+        if (block is smaller than only only one clue) {
+            block must belong to large clue
+        }
+        */
+
+        /* Keep track of lowest and highest possible clue based on wheter clues can fit in the spots before after the current block */
+
+        int clue_length_before = 0;
+        int space_before = curr_block->first_tile;
+        for (int i = 0; i < l->clues->size(); i++) {
+            clue_length_before += l->clues->at(i) + 1;
+            // Stop if clues cannot fit in the space before
+            if (clue_length_before > space_before) {
+                last_possible_clue = i;
+                break;
+            }
+        }
+        int clue_length_after = 0;
+        int space_after = board->size - curr_block->last_tile - 1;
+        for (int i = l->clues->size() - 1; i >= 0; i--) {
+            clue_length_after += l->clues->at(i) + 1;
+            // Stop if clues cannot fit in the space after
+            if (clue_length_after > space_after) {
+                first_possible_clue = i;
+                break;
+            }
+        }
+
+        // TODO: Remove after debugging
+        if(first_possible_clue <= last_possible_clue) {
+            float i = 0 / 0; // doing it this way so I dont have to import assert.h
+        }
+
+        // You know the block's clue if the range is only one number
+        if (first_possible_clue == last_possible_clue) {
+            curr_block->belongs_to = first_possible_clue;
+            prev_filled_block = curr_block;
+            prev_first_possible_clue = first_possible_clue;
+            prev_last_possible_clue = last_possible_clue;
+            curr_block = curr_block->next;
+            none_block_between = false;
+            continue;
+        }
+
+
+        /*
+        You can determine that two blocks belong to separate clues if
+            The connection of two blocks would exceed the max clue size
+            There's a none block between the two blocks
+        */
+        if (prev_filled_block == NULL) {
+            prev_filled_block = curr_block;
+            prev_first_possible_clue = first_possible_clue;
+            prev_last_possible_clue = last_possible_clue;
+            curr_block = curr_block->next;
+            none_block_between = false;
+            continue;
+        }
+        if (last_possible_clue - first_possible_clue == 1) {
+            // For now only worry about case when current block has two possible clues to choose from - x and y
+            // This makes the prev block be clue x and the second block be clue y
+            if ((first_possible_clue == prev_first_possible_clue) && (last_possible_clue == prev_last_possible_clue)) {
+                // If there's a known NONE block between, the blocks cannot be connected
+                if (none_block_between) {
+                    prev_filled_block->belongs_to = first_possible_clue;
+                    curr_block->belongs_to = last_possible_clue;
+                }
+                // TODO: If connecting the blocks would be too long, the blocks cannot be connected
+                /*
+                if (connecting the blocks would be too long) {
+                    prev_filled_block->belongs_to = first_possible_clue;
+                    curr_block->belongs_to = last_possible_clue;
+                }
+                */
+            }
+        }
+
+        prev_filled_block = curr_block;
+        prev_first_possible_clue = first_possible_clue;
+        prev_last_possible_clue = last_possible_clue;
+        curr_block = curr_block->next;
+        none_block_between = false;
+    }
+
 }
 
 void Algo::runCertaintyStrategy(line * l) {

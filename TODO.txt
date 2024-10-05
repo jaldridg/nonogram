@@ -1,6 +1,22 @@
 Optimization: Go back to the trivial 2s grid and you'll see some unecessary splits/merges/deletes
 
-Algo.c functions need to run in block operations
+Growth strategies need to be implemented using blocks
+
+New block classification function
+    - Size related
+        - If the block in question is only smaller than one clue - it must be the large clue
+    - Trivial   
+        - If there's one clue - all filled blocks belong to that clue
+        - If block is the first/last filled tile in a line (so it's against a wall or NONE on the edge), it must belong to the first/last clue
+    - Connections
+        - If the connection of two blocks exceeds the max clue size, the blocks must be separate
+        - If there's a NONE block between two FILLED blocks, they can't connect so the blocks must belong to different clues
+    - Theoretical solves
+        - Assume block belongs to a certain clue and see if the puzzle is possible, if not, it's any of the remaining clues
+
+
+Add this case to block completion
+    - Every remaining UNKNOWN tile sums to the unknown tile count -> replace UNKNOWN tiles with FILLED tiles
 
 See if we can turn lineGrowth beginning and end into one function with parameters that "select" whether to do end or beginning
 
