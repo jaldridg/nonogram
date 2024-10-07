@@ -21,7 +21,7 @@ void Debug::printLines() {
             int block_number = (int) (b - board->blocks);
             printf("\tBlock #%d: (%x) - %d\n", block_number + 1, b, b->block_length);
             printf("\t\t%d [%c] tiles ranging from tiles %d to %d\n", b->block_length, b->tile_state, b->first_tile, b->last_tile);
-            printf("\t\tprev: %x\t\tnext: %x\n", b->prev, b->next);
+            printf("\t\tbelongs_to: %d\tprev: %x\t\tnext: %x\n", b->belongs_to, b->prev, b->next);
             b = b->next;
         } while (b);
     }
@@ -36,7 +36,7 @@ void Debug::printLines() {
             int block_number = (int) (b - board->blocks);
             printf("\tBlock #%d: (%x) - %d\n", block_number + 1, b, b->block_length);
             printf("\t\t%d [%c] tiles ranging from tiles %d to %d\n", b->block_length, b->tile_state, b->first_tile, b->last_tile);
-            printf("\t\tprev: %x\t\tnext: %x\n", b->prev, b->next);
+            printf("\t\tbelongs_to: %d\tprev: %x\t\tnext: %x\n", b->belongs_to, b->prev, b->next);
             b = b->next;
         } while (b);
     }

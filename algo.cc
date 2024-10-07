@@ -31,7 +31,7 @@ void Algo::run() {
         queue.pop();
         // See if our strategies completed the line
         bool line_updated = false;
-        
+                    
         if (attemptLineCompletion(l)) {
             line_updated = true;
         } else {
@@ -39,9 +39,10 @@ void Algo::run() {
         }
         
         // Run strategies
+        printf("findBlockClues\n");
+        findBlockClues(l);
         // if (runGrowthStrategyBeginning(l)) { line_updated = true; } 
         // if (runGrowthStrategyEnd(l)) { line_updated = true; }
-            
 
         no_solution_counter += !line_updated;
         if (line_updated) {
@@ -58,6 +59,11 @@ void Algo::run() {
 }
 
 void Algo::findBlockClues(line * l) {
+    if (l->unknown_tiles == 0) { return; }
+
+    if (!l->is_row && l->line_number == 2) {
+        int i = 0;
+    }
     /*
     Check if there's only one clue
 	If so all filled blocks belong to that clue
@@ -82,15 +88,13 @@ void Algo::findBlockClues(line * l) {
             }
             curr_block = curr_block->next;
         }
+        return;
     }
 
     curr_block = l->block_head;
     block * prev_filled_block = NULL;
     int prev_first_possible_clue = -1;
     int prev_last_possible_clue = -1;
-    // The indices defining a range of the clues that are possible with the given block
-    int first_possible_clue = 0;
-    int last_possible_clue = l->clues->size() - 1;
     bool none_block_between = false;
     /*
     // TODO: Use these variables to check: "If the block in question is smaller than only one clue - it must be the large clue"
@@ -115,6 +119,7 @@ void Algo::findBlockClues(line * l) {
         /* Keep track of lowest and highest possible clue based on wheter clues can fit in the spots before after the current block */
 
         int clue_length_before = 0;
+        int last_possible_clue = l->clues->size() - 1;
         int space_before = curr_block->first_tile;
         for (int i = 0; i < l->clues->size(); i++) {
             clue_length_before += l->clues->at(i) + 1;
@@ -125,6 +130,7 @@ void Algo::findBlockClues(line * l) {
             }
         }
         int clue_length_after = 0;
+        int first_possible_clue = 0;
         int space_after = board->size - curr_block->last_tile - 1;
         for (int i = l->clues->size() - 1; i >= 0; i--) {
             clue_length_after += l->clues->at(i) + 1;
@@ -136,12 +142,29 @@ void Algo::findBlockClues(line * l) {
         }
 
         // TODO: Remove after debugging
-        if(first_possible_clue <= last_possible_clue) {
+        if(first_possible_clue > last_possible_clue) {
             float i = 0 / 0; // doing it this way so I dont have to import assert.h
+        }
+
+        // Try to narrow down range based on previous block
+        if (prev_filled_block && prev_filled_block->belongs_to != -1) {
+            if (first_possible_clue <= prev_filled_block->belongs_to) {
+                // Make sure we're not going out of clue range
+                if (prev_filled_block->belongs_to + 1 < l->clues->size()) {
+                    first_possible_clue = prev_filled_block->belongs_to + 1;
+                }
+            }
         }
 
         // You know the block's clue if the range is only one number
         if (first_possible_clue == last_possible_clue) {
+            // See if we can figure out the previous block's clue
+            if (prev_filled_block && prev_first_possible_clue + 1 == last_possible_clue) {
+                // Only apply rule if the blocks can't possibly belong to the same
+                if (false /* determine ^^ */) {
+                    prev_filled_block->belongs_to = prev_first_possible_clue;
+                }
+            }
             curr_block->belongs_to = first_possible_clue;
             prev_filled_block = curr_block;
             prev_first_possible_clue = first_possible_clue;

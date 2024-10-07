@@ -329,9 +329,6 @@ void Board::setTile(line * l, int index, Tilestate state) {
 // Fills the line with the given state using the limits
 // Starting index and stopping index are inclusive
 void Board::setTileRange(line * l, int start_index, int stop_index, Tilestate state) {
-    if (!l->is_row && l->line_number == 2) {
-        int i = 0;
-    }
     assert(start_index <= stop_index);
 
     // Find the first block which intersects with the indices we're interested in
