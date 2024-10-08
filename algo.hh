@@ -21,6 +21,7 @@ private:
 
     void findBlockClues(line * l);
 
+    bool runGrowthStrategy(line * l);
     bool runGrowthStrategyBeginning(line * l);
     bool runGrowthStrategyEnd(line * l);
 

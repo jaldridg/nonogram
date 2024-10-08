@@ -199,7 +199,7 @@ void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask
         int first = b->first_tile;
         int last = lower_mask_index - 1;
         int length = last - first + 1;
-        int belongs_to = b->tile_state == FILLED ? b->belongs_to : -1;
+        int belongs_to = b->belongs_to;
         Tilestate ts = b->tile_state;
         block * prev_block = b->prev;
         block * next_block = b;
@@ -230,7 +230,7 @@ void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask
         int first = upper_mask_index + 1;
         int last = b->last_tile;
         int length = last - first + 1;
-        int belongs_to = b->tile_state == FILLED ? b->belongs_to : -1;
+        int belongs_to = b->belongs_to;
         Tilestate ts = b->tile_state;
         block * prev_block = b;
         block * next_block = b->next;
@@ -269,6 +269,7 @@ void Board::mergeBlock(block * b, line * l) {
         }
         // Grow block to encompass the next block
         first_block = first_block->prev;
+        first_block->belongs_to = first_block->next->belongs_to > -1 ? first_block->next->belongs_to : first_block->belongs_to;
         first_block->block_length += first_block->next->block_length;
         first_block->last_tile = first_block->next->last_tile;
         // Set tail if the merged block was the tail
@@ -288,6 +289,7 @@ void Board::mergeBlock(block * b, line * l) {
         }
         // Grow block to encompass the prevous block
         last_block = last_block->next;
+        last_block->belongs_to = last_block->prev->belongs_to > -1 ? last_block->prev->belongs_to : last_block->belongs_to;
         last_block->block_length += last_block->prev->block_length;
         last_block->first_tile = last_block->prev->first_tile;
         // Set head if the merged block was the head

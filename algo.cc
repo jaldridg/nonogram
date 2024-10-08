@@ -39,14 +39,15 @@ void Algo::run() {
         }
         
         // Run strategies
-        printf("findBlockClues\n");
         findBlockClues(l);
-        // if (runGrowthStrategyBeginning(l)) { line_updated = true; } 
-        // if (runGrowthStrategyEnd(l)) { line_updated = true; }
+        printf("runGrowthStrategy\n");
+        if (runGrowthStrategy(l)) { line_updated = true; } 
 
         no_solution_counter += !line_updated;
         if (line_updated) {
             no_solution_counter = 0;
+            board->print();
+            Debug::printLines();
         }
 
         total_steps++;
@@ -61,9 +62,6 @@ void Algo::run() {
 void Algo::findBlockClues(line * l) {
     if (l->unknown_tiles == 0) { return; }
 
-    if (!l->is_row && l->line_number == 2) {
-        int i = 0;
-    }
     /*
     Check if there's only one clue
 	If so all filled blocks belong to that clue
@@ -144,16 +142,6 @@ void Algo::findBlockClues(line * l) {
         // TODO: Remove after debugging
         if(first_possible_clue > last_possible_clue) {
             float i = 0 / 0; // doing it this way so I dont have to import assert.h
-        }
-
-        // Try to narrow down range based on previous block
-        if (prev_filled_block && prev_filled_block->belongs_to != -1) {
-            if (first_possible_clue <= prev_filled_block->belongs_to) {
-                // Make sure we're not going out of clue range
-                if (prev_filled_block->belongs_to + 1 < l->clues->size()) {
-                    first_possible_clue = prev_filled_block->belongs_to + 1;
-                }
-            }
         }
 
         // You know the block's clue if the range is only one number
@@ -251,6 +239,48 @@ void Algo::runCertaintyStrategy(line * l) {
             board->setTileRange(l, lower_limit, upper_limit, FILLED);
         }
     }
+}
+
+bool Algo::runGrowthStrategy(line * l) {
+    if (l->unknown_tiles == 0) { return false; }
+
+    int initial_unknown = l->unknown_tiles;
+    block * curr_block = l->block_head;
+    block * prev_known_block = curr_block->prev;
+    while (curr_block) {
+        // Skip if there's no information about the block
+        if (curr_block->belongs_to == -1) {
+            curr_block = curr_block->next;
+            continue;
+        }
+
+        int clue_length = l->clues->at(curr_block->belongs_to);
+
+        // Connect blocks which belong to the same clue
+        if (prev_known_block && prev_known_block->belongs_to == curr_block->belongs_to) {
+            board->setTileRange(l, prev_known_block->first_tile, curr_block->last_tile, FILLED);
+        }
+
+        // See if block is already the right length and add Xs to "cap" it off
+        if (curr_block->block_length == clue_length) {
+            // Try to put an X before block
+            if (curr_block->first_tile > 0) {
+                board->setTile(l, curr_block->first_tile - 1, NONE);
+            }
+            // Try to pat an X after block
+            if (curr_block->last_tile < board->size - 1) {
+                board->setTile(l, curr_block->last_tile + 1, NONE);
+            }
+        }
+
+
+
+        prev_known_block = curr_block;
+        curr_block = curr_block->next;
+    }
+
+    bool updated = l->unknown_tiles - initial_unknown > 0;
+    return updated;
 }
 
 // Attempt growth from start of the line

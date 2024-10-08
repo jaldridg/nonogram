@@ -10,7 +10,6 @@ int main() {
     Algo algo = Algo(&b);
     algo.run();
     b.print();
-    Debug::printLines();
     b.clear();
     return 0;
 }
