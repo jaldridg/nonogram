@@ -5,9 +5,9 @@
 
 class Debug {
     public:
-        int tempVariable1 = 0;
-        int tempVariable2 = 0;
-        int tempVariable3 = 0;
+        static int tempVariable1;
+        static int tempVariable2;
+        static int tempVariable3;
 
         static void setBoard(Board * board);
 

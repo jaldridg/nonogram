@@ -33,6 +33,8 @@ void Algo::run() {
         bool line_updated = false;
                     
         if (attemptLineCompletion(l)) {
+            printf("attemptLineCompletion\n");
+            board->print();
             line_updated = true;
         } else {
             queue.push(l);
@@ -40,14 +42,15 @@ void Algo::run() {
         
         // Run strategies
         findBlockClues(l);
-        printf("runGrowthStrategy\n");
-        if (runGrowthStrategy(l)) { line_updated = true; } 
+        if (runGrowthStrategy(l)) {
+            printf("runGrowthStrategy\n");
+            board->print();
+            line_updated = true; 
+        } 
 
         no_solution_counter += !line_updated;
         if (line_updated) {
             no_solution_counter = 0;
-            board->print();
-            Debug::printLines();
         }
 
         total_steps++;
@@ -265,152 +268,25 @@ bool Algo::runGrowthStrategy(line * l) {
         if (curr_block->block_length == clue_length) {
             // Try to put an X before block
             if (curr_block->first_tile > 0) {
-                board->setTile(l, curr_block->first_tile - 1, NONE);
+                int none_tile_index = curr_block->first_tile - 1;
+                board->setTile(l, none_tile_index, NONE);
+                line * opposite_line = l->is_row ? (board->cols + none_tile_index) : (board->rows + none_tile_index);
+                board->setTile(opposite_line, l->line_number, NONE);
             }
             // Try to pat an X after block
             if (curr_block->last_tile < board->size - 1) {
-                board->setTile(l, curr_block->last_tile + 1, NONE);
+                int none_tile_index = curr_block->last_tile + 1;
+                board->setTile(l, none_tile_index, NONE);
+                line * opposite_line = l->is_row ? (board->cols + none_tile_index) : (board->rows + none_tile_index);
+                board->setTile(opposite_line, l->line_number, NONE);
             }
         }
-
-
-
+        
         prev_known_block = curr_block;
         curr_block = curr_block->next;
     }
 
-    bool updated = l->unknown_tiles - initial_unknown > 0;
-    return updated;
-}
-
-// Attempt growth from start of the line
-bool Algo::runGrowthStrategyBeginning(line * l) {
-    if (l->unknown_tiles == 0) { return false; }
-    
-    // Traverse until the first unknown tile
-    int i = 0;
-    int filled_count = 0;
-    int clue_index = 0;
-    while (l->tiles[i] != UNKNOWN) {
-        // Count filled tiles to see if we're running over a clue
-        if (l->tiles[i] == FILLED) {
-            filled_count++;
-            // If we've counted all tiles in a clue, we've exhausted it so move onto the next one for counting
-            if (filled_count == l->clues->at(clue_index)) { 
-                clue_index++;
-                filled_count = 0;
-
-                // If the tiles are as long as the clue we need to set NONE to "cap" it off
-                if (l->tiles[i + 1] == UNKNOWN) {
-                    board->setTile(l, i + 1, NONE);
-                    // Edge case where we complete the line by completing the NONE tile
-                    if (i + 1 == board->size - 1) { return true; }
-                }
-            }
-        }
-        i++;
-    }
-
-    // Look at the tile before the unknown space
-    // If filled, grow the block based on the clue's given size
-    int initial_filled = l->filled_tiles;
-    if (i - 1 >= 0 && l->tiles[i - 1] == FILLED) {
-        int upper_cell = i + l->clues->at(clue_index) - filled_count - 1;
-        board->setTileRange(l, i, upper_cell, FILLED);
-        if (upper_cell + 1 <= board->size - 1) {
-            board->setTileRange(l, upper_cell + 1, upper_cell + 1, NONE);
-        }
-
-    // If none (remaining case), try to find a hanging filled tile that we can grow
-    } else {
-        // Search for a filled tile next to our first unknown space
-        int gap_length = 0;
-        bool can_fill = false;
-        for (int j = 0; j < l->clues->at(clue_index); j++, i++) {
-            // Break if we hit a none tile because there's some weird edge cases
-            if (l->tiles[i] == NONE) { break; }
-            // If we find a tile, we're clear to grow it out until the clue size
-            if (l->tiles[i] == FILLED) { 
-                can_fill = true;
-                break;
-            }
-            gap_length++;
-        }
-
-        if (can_fill) {
-            int upper_cell = i + l->clues->at(clue_index) - gap_length - 1;
-            board->setTileRange(l, i, upper_cell, FILLED);
-        }
-    }
-
-    // Check if we actually updated something and made progress
-    bool updated = l->filled_tiles - initial_filled > 0;
-    return updated;
-}
-
-// Attempt grwoth from the end of the line
-bool Algo::runGrowthStrategyEnd(line * l) {
-    if (l->unknown_tiles == 0) { return false; }
-
-    // Traverse until the first unknown tile
-    int i = board->size - 1;
-    int filled_count = 0;
-    int clue_index = l->clues->size() - 1;
-    while (l->tiles[i] != UNKNOWN) {
-        // Count filled tiles to see if we're running over a clue
-        if (l->tiles[i] == FILLED) { 
-            filled_count++;
-            // If we've counted all tiles in a clue, we've exhausted it so move onto the next one for counting
-            if (filled_count == l->clues->at(clue_index)) { 
-                clue_index--;
-                filled_count = 0;
-
-                // If the next cell is unknown, it must actually be NONE
-                // Grow it out so we can try to grow other blocks - and avoid edge cases :)
-                if (l->tiles[i - 1] == UNKNOWN) {
-                    board->setTileRange(l, i - 1, i - 1, NONE);
-                    // Edge case where we complete the line by completing the NONE tile
-                    if (i - 1 == 0) { return true; }
-                }
-            }
-        }
-        i--;
-    }
-
-    // Look at the tile before the unknown space
-    // If filled, grow the block based on the clue's given size
-    int initial_filled = l->filled_tiles;
-    if (i + 1 <= board->size - 1 && l->tiles[i + 1] == FILLED) {
-        int lower_cell = i - (l->clues->at(clue_index)) + 1 + filled_count;
-        board->setTileRange(l, lower_cell, i, FILLED);
-        if (lower_cell - 1 >= 0) {
-            board->setTileRange(l, lower_cell - 1, lower_cell - 1, NONE);
-        }
-
-    // If none (remaining case), try to find a hanging filled tile that we can grow
-    } else {
-        // Search for a filled tile next to our first unknown space
-        int gap_length = 0;
-        bool can_fill = false;
-        for (int j = 0; j < l->clues->at(clue_index); j++, i--) {
-            // Break if we hit a none tile because there's some weird edge cases
-            if (l->tiles[i] == NONE) { break; }
-            // If we find a tile, we're clear to grow it out until the clue size
-            if (l->tiles[i] == FILLED) { 
-                can_fill = true;
-                break;
-            }
-            gap_length++;
-        }
-
-        if (can_fill) {
-            int lower_cell = i - l->clues->at(clue_index) + gap_length + 1;
-            board->setTileRange(l, lower_cell, i, FILLED);
-        }
-    }
-
-    // Check if we actually updated something and made progress
-    bool updated = l->filled_tiles - initial_filled > 0;
+    bool updated = initial_unknown - l->unknown_tiles > 0;
     return updated;
 }
 

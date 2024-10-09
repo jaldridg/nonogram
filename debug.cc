@@ -6,6 +6,10 @@
 
 Board * Debug::board;
 
+static int tempVariable1 = 0;
+static int tempVariable2 = 0;
+static int tempVariable3 = 0;
+
 void Debug::setBoard(Board * b) {
     board = b;
 }

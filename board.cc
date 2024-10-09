@@ -305,9 +305,6 @@ void Board::mergeBlock(block * b, line * l) {
 // Sets a tile to a given tilestate by splitting blocks if necessary
 // Note: This does not correct the opposite dimension but should be used as a helper
 void Board::setTile(line * l, int index, Tilestate state) {
-    if (!l->is_row && l->line_number == 2) {
-        int i = 0;
-    }
     assert(index < size);
 
     // Find index by looping over blocks
