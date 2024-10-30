@@ -76,6 +76,8 @@ public:
         clues->at(num)->at(pos) = clue;
     }
 
+    int getMaxClueIndex(line * l);
+
 private:
 
 };

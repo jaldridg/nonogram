@@ -102,7 +102,8 @@ void Algo::findBlockClues(line * l) {
     int largest_unmatched_clue_index = 
     int second_largest_unmatched_clue_index = 
     */
-    // 
+    //
+    // Loop through the line to see if we can identify the clues that blocks belong to
     while (curr_block) {
         if (curr_block->tile_state != FILLED) {
             if (curr_block->tile_state == NONE) {
@@ -111,6 +112,10 @@ void Algo::findBlockClues(line * l) {
             curr_block = curr_block->next;
             continue;
         }
+
+        int max_clue_index = board->getMaxClueIndex(l);
+        int max_clue_size = l->clues->at(max_clue_index);
+        // Need second largest clue information
         /*
         if (block is smaller than only only one clue) {
             block must belong to large clue
@@ -151,8 +156,9 @@ void Algo::findBlockClues(line * l) {
         if (first_possible_clue == last_possible_clue) {
             // See if we can figure out the previous block's clue
             if (prev_filled_block && prev_first_possible_clue + 1 == last_possible_clue) {
-                // Only apply rule if the blocks can't possibly belong to the same
-                if (false /* determine ^^ */) {
+                // Only apply rule if the blocks can't possibly belong to the same clue
+                // Valid if combined blocks would exceed max clue size and there's no none block between
+                if (curr_block->last_tile - prev_filled_block->first_tile + 1 <= max_clue_size && !none_block_between) {
                     prev_filled_block->belongs_to = prev_first_possible_clue;
                 }
             }
@@ -168,8 +174,8 @@ void Algo::findBlockClues(line * l) {
 
         /*
         You can determine that two blocks belong to separate clues if
-            The connection of two blocks would exceed the max clue size
-            There's a none block between the two blocks
+            - The connection of two blocks would exceed the max clue size
+            - There's a none block between the two blocks
         */
         if (prev_filled_block == NULL) {
             prev_filled_block = curr_block;
@@ -204,14 +210,12 @@ void Algo::findBlockClues(line * l) {
         curr_block = curr_block->next;
         none_block_between = false;
     }
-
 }
 
 void Algo::runCertaintyStrategy(line * l) {
     std::vector<int> * clues = l->clues;
 
-    // Run certainty rule on each block in a line based...
-    // ...on the space taken by blocks before and after
+    // Run certainty rule on each block in a line based on the space taken by blocks before and after
     for (int i = 0; i < clues->size(); i++) {
         // Calculate the size of blocks before current block
         int size_before = 0;
@@ -249,7 +253,7 @@ bool Algo::runGrowthStrategy(line * l) {
 
     int initial_unknown = l->unknown_tiles;
     block * curr_block = l->block_head;
-    block * prev_known_block = curr_block->prev;
+    block * prev_known_block = NULL;
     while (curr_block) {
         // Skip if there's no information about the block
         if (curr_block->belongs_to == -1) {
@@ -264,6 +268,8 @@ bool Algo::runGrowthStrategy(line * l) {
             board->setTileRange(l, prev_known_block->first_tile, curr_block->last_tile, FILLED);
         }
 
+        // TODO: Growth code here
+
         // See if block is already the right length and add Xs to "cap" it off
         if (curr_block->block_length == clue_length) {
             // Try to put an X before block
@@ -273,7 +279,7 @@ bool Algo::runGrowthStrategy(line * l) {
                 line * opposite_line = l->is_row ? (board->cols + none_tile_index) : (board->rows + none_tile_index);
                 board->setTile(opposite_line, l->line_number, NONE);
             }
-            // Try to pat an X after block
+            // Try to put an X after block
             if (curr_block->last_tile < board->size - 1) {
                 int none_tile_index = curr_block->last_tile + 1;
                 board->setTile(l, none_tile_index, NONE);
@@ -281,7 +287,7 @@ bool Algo::runGrowthStrategy(line * l) {
                 board->setTile(opposite_line, l->line_number, NONE);
             }
         }
-        
+
         prev_known_block = curr_block;
         curr_block = curr_block->next;
     }

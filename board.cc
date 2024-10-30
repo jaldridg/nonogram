@@ -402,3 +402,13 @@ void Board::completeLine(line * l) {
     
     l->unknown_tiles = 0;
 }
+
+int Board::getMaxClueIndex(line * l) {
+    int max_index = 0;
+    for (int i = 0; i < l->clues->size(); i++) {
+        if (l->clues->at(i) > l->clues->at(max_index)) {
+            max_index = i;
+        }
+    }
+    return max_index;
+}
