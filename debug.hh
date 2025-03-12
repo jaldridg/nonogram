@@ -19,6 +19,8 @@ class Debug {
 
         static void checkBlocks();
 
+        static void printBlockClues();
+
     private:
         static Board * board;
 };

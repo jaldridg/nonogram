@@ -108,3 +108,43 @@ void Debug::checkBlocks() {
         assert(total_count == board->size);
     }
 }
+
+void Debug::printBlockClues() {
+    // Horizontal lines
+    printf("HORIZONTAL LINES\n");
+    for (int i = 0; i < board->size; i++) {
+        line l = board->rows[i];
+        printf("Line #%d:\t", i + 1);
+        block * b = l.block_head;
+        do {
+            printf("[%c]\t", b->tile_state);
+            b = b->next;
+        } while (b);
+        printf("\n\t\t");
+        b = l.block_head;
+        do {
+            printf(" %d\t", b->belongs_to);
+            b = b->next;
+        } while (b);
+        printf("\n");
+    }
+
+    // Vertical lines
+    printf("\nVERTICAL LINES\n");
+    for (int i = 0; i < board->size; i++) {
+        line l = board->cols[i];
+        printf("Line #%d:\t", i + 1);
+        block * b = l.block_head;
+        do {
+            printf("[%c]\t", b->tile_state);
+            b = b->next;
+        } while (b);
+        printf("\n\t\t");
+        b = l.block_head;
+        do {
+            printf(" %d\t", b->belongs_to);
+            b = b->next;
+        } while (b);
+        printf("\n");
+    }
+}

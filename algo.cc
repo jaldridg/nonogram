@@ -33,8 +33,8 @@ void Algo::run() {
         bool line_updated = false;
                     
         if (attemptLineCompletion(l)) {
-            printf("attemptLineCompletion\n");
-            board->print();
+            // printf("attemptLineCompletion\n");
+            // board->print();
             line_updated = true;
         } else {
             queue.push(l);
@@ -45,6 +45,7 @@ void Algo::run() {
         if (runGrowthStrategy(l)) {
             printf("runGrowthStrategy\n");
             board->print();
+            Debug::printBlockClues();
             line_updated = true; 
         } 
 
@@ -92,7 +93,7 @@ void Algo::findBlockClues(line * l) {
         return;
     }
 
-    curr_block = l->block_head;
+    curr_block = l->block_head; //TODO: remove this line - it should already be true
     block * prev_filled_block = NULL;
     int prev_first_possible_clue = -1;
     int prev_last_possible_clue = -1;
@@ -122,7 +123,7 @@ void Algo::findBlockClues(line * l) {
         }
         */
 
-        /* Keep track of lowest and highest possible clue based on wheter clues can fit in the spots before after the current block */
+        /* Keep track of lowest and highest possible clue based on wheter clues can fit in the spots before and after the current block */
 
         int clue_length_before = 0;
         int last_possible_clue = l->clues->size() - 1;
@@ -158,7 +159,7 @@ void Algo::findBlockClues(line * l) {
             if (prev_filled_block && prev_first_possible_clue + 1 == last_possible_clue) {
                 // Only apply rule if the blocks can't possibly belong to the same clue
                 // Valid if combined blocks would exceed max clue size and there's no none block between
-                if (curr_block->last_tile - prev_filled_block->first_tile + 1 <= max_clue_size && !none_block_between) {
+                if (curr_block->last_tile - prev_filled_block->first_tile + 1 > max_clue_size && !none_block_between) {
                     prev_filled_block->belongs_to = prev_first_possible_clue;
                 }
             }
