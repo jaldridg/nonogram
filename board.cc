@@ -189,7 +189,7 @@ void Board::deleteBlock(block * b, line * l) {
 void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask_index) {
     assert(lower_mask_index <= upper_mask_index);
 
-    // Skip when block and mask do not intersect
+    // Skip if block and mask do not intersect
     if (b->first_tile > upper_mask_index) { return; }
     if (b->last_tile < lower_mask_index) { return; }
 

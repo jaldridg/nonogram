@@ -45,7 +45,7 @@ void Algo::run() {
         if (runGrowthStrategy(l)) {
             printf("runGrowthStrategy\n");
             board->print();
-            Debug::printBlockClues();
+            //Debug::printBlockClues();
             line_updated = true; 
         } 
 
@@ -269,7 +269,14 @@ bool Algo::runGrowthStrategy(line * l) {
             board->setTileRange(l, prev_known_block->first_tile, curr_block->last_tile, FILLED);
         }
 
-        // TODO: Growth code here
+        block * next_block = curr_block->next;
+        // Walls are solved parts of the puzzle that we can grow filled blocks away from
+        bool left_wall = (curr_block->prev->tile_state == NULL) || curr_block->prev->tile_state == NONE;
+        bool right_wall = (next_block == NULL) || next_block->tile_state == NONE;
+        // Can only use growth strategy when there's exactly one wall. Growth is invalid when block is solved (sandwiched by walls) or ambiguous (around no walls)
+        if (left_wall != right_wall) {
+            // TODO: Expand filled block away from wall until size of clue length. Note: wall could be on either side so solution must be generalized
+        }
 
         // See if block is already the right length and add Xs to "cap" it off
         if (curr_block->block_length == clue_length) {
