@@ -33,8 +33,8 @@ void Algo::run() {
         bool line_updated = false;
                     
         if (attemptLineCompletion(l)) {
-            // printf("attemptLineCompletion\n");
-            // board->print();
+            printf("attemptLineCompletion\n");
+            board->print();
             line_updated = true;
         } else {
             queue.push(l);
@@ -45,7 +45,7 @@ void Algo::run() {
         if (runGrowthStrategy(l)) {
             printf("runGrowthStrategy\n");
             board->print();
-            //Debug::printBlockClues();
+            Debug::printBlockClues();
             line_updated = true; 
         } 
 
@@ -58,6 +58,7 @@ void Algo::run() {
         if (no_solution_counter == queue.size()) {
             printf("Algorithm has exhausted its techniques over %d steps!\n", total_steps);
             printf("%d lines remain unsolved\n", queue.size());
+            Debug::printBlockClues();
             return;
         }
     }
@@ -271,23 +272,29 @@ bool Algo::runGrowthStrategy(line * l) {
 
         block * next_block = curr_block->next;
         // Walls are solved parts of the puzzle that we can grow filled blocks away from
-        bool left_wall = (curr_block->prev->tile_state == NULL) || curr_block->prev->tile_state == NONE;
-        bool right_wall = (next_block == NULL) || next_block->tile_state == NONE;
+        bool wall_prev = (curr_block->prev == NULL) || curr_block->prev->tile_state == NONE;
+        bool wall_next = (next_block == NULL) || next_block->tile_state == NONE;
         // Can only use growth strategy when there's exactly one wall. Growth is invalid when block is solved (sandwiched by walls) or ambiguous (around no walls)
-        if (left_wall != right_wall) {
-            // TODO: Expand filled block away from wall until size of clue length. Note: wall could be on either side so solution must be generalized
+        if (wall_prev != wall_next) {
+            // TODO: Grow filled block away from wall until size of clue length. Note: wall could be on either side so solution must be generalized
+            int growth_amount = clue_length - curr_block->block_length;
+            if (wall_prev) {
+                board->setTileRange(l, curr_block->first_tile, curr_block->last_tile + growth_amount, FILLED);
+            } else {
+                board->setTileRange(l, curr_block->first_tile - growth_amount, curr_block->last_tile, FILLED);
+            }
         }
 
         // See if block is already the right length and add Xs to "cap" it off
         if (curr_block->block_length == clue_length) {
-            // Try to put an X before block
+            // Put an X before block if not at start of line
             if (curr_block->first_tile > 0) {
                 int none_tile_index = curr_block->first_tile - 1;
                 board->setTile(l, none_tile_index, NONE);
                 line * opposite_line = l->is_row ? (board->cols + none_tile_index) : (board->rows + none_tile_index);
                 board->setTile(opposite_line, l->line_number, NONE);
             }
-            // Try to put an X after block
+            // Put an X after block if not at end of line
             if (curr_block->last_tile < board->size - 1) {
                 int none_tile_index = curr_block->last_tile + 1;
                 board->setTile(l, none_tile_index, NONE);
