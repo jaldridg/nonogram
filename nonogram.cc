@@ -9,7 +9,7 @@ int main() {
     Debug::setBoard(&b);
     Algo algo = Algo(&b);
     algo.run();
-    //b.print();
+    b.print();
     b.clear();
     return 0;
 }
