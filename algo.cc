@@ -95,7 +95,6 @@ void Algo::findBlockClues(line * l) {
         return;
     }
 
-    curr_block = l->block_head; //TODO: remove this line - it should already be true
     block * prev_filled_block = NULL;
     int prev_first_possible_clue = -1;
     int prev_last_possible_clue = -1;
@@ -320,9 +319,45 @@ bool Algo::attemptLineCompletion(line * l) {
     }
 
     // We know we're done if we've filled the number of tiles given by clues
-    bool done = tile_total == l->filled_tiles;
-    if (done) { 
+    if (tile_total == l->filled_tiles) { 
         board->completeLine(l);
+        return true;
     }
-    return done;
+
+    bool line_updated = false;
+    // If not done, try to turn some unknown tiles into Xs
+
+    // Find the first filled block and attempt to fill towards upper board edge
+    block * first_filled_block = l->block_head;
+    // Go until you find a filled block or stop when all blocks have been visited
+    while (first_filled_block != NULL && first_filled_block->tile_state != FILLED) {
+        first_filled_block = first_filled_block->next;
+    }
+
+    // Proceed if we've found a filled block with a clue (but skip if first block since we're trying to fill before)
+    if (first_filled_block != NULL && first_filled_block->belongs_to != -1) {
+        int missing_fill = first_filled_block->block_length - l->clues->at(first_filled_block->belongs_to);
+        if (missing_fill > 0) {
+            board->setTileRange(l, 0, first_filled_block->first_tile - 1, NONE);
+            line_updated = true;
+        }
+    }
+
+    // Find the last filled block and attempt to fill towards lower board edge
+    block * last_filled_block = l->block_tail;
+    // Go until you find a filled block or stop when all blocks have been visited
+    while (last_filled_block != NULL && last_filled_block->tile_state != FILLED) {
+        last_filled_block = last_filled_block->prev;
+    }
+
+    // Proceed if we've found a filled block with a clue (but skip if last block since we're trying to fill after)
+    if (last_filled_block != NULL && last_filled_block->belongs_to != -1) {
+        int missing_fill = last_filled_block->block_length - l->clues->at(last_filled_block->belongs_to);
+        if (missing_fill > 0) {
+            board->setTileRange(l, last_filled_block->last_tile + 1, board->size - 1, NONE);
+            line_updated = true;
+        }
+    }
+
+    return line_updated;
 }
