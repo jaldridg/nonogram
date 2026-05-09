@@ -392,7 +392,7 @@ void Board::completeLine(line * l) {
     }
 
     // Attempt to merge by looping over the blocks
-    // We have to check the whole line since we updated mutiple blocks)
+    // We have to check the whole line since we updated mutiple blocks
     // After merging we should jump two more blocks and try to merge more
     curr_block = l->block_head;
     mergeBlock(curr_block, l); // FYI: Recently added this line to fix a bug but might still break things in the future

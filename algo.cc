@@ -35,7 +35,7 @@ void Algo::run() {
         if (attemptLineCompletion(l)) {
             printf("attemptLineCompletion\n");
             board->print();
-            //Debug::printBlockClues();
+            Debug::printBlockClues();
             line_updated = true;
         } else {
             queue.push(l);
@@ -46,7 +46,7 @@ void Algo::run() {
         if (runGrowthStrategy(l)) {
             printf("runGrowthStrategy\n");
             board->print();
-            //Debug::printBlockClues();
+            Debug::printBlockClues();
             line_updated = true; 
         } 
 
