@@ -258,13 +258,29 @@ void Board::splitBlock(block * b, line * l, int lower_mask_index, int upper_mask
 }
 
 void Board::mergeBlock(block * b, line * l) {
-    // Get compatible blocks before this block
-    int first_index = b->first_tile;
-    block * first_block = b;
-    while (first_block->prev) {
+    // Get compatible blocks before this block and merge into b
+    while (b->prev) {
+        // Stop if blocks are different types
+        if (b->tile_state != b->prev->tile_state) {
+            break;
+        }
+        // Grow b to encompass the previous block
+        b->belongs_to = b->belongs_to != -1 ? b->belongs_to : b->prev->belongs_to;
+        b->block_length += b->prev->block_length;
+        b->first_tile = b->prev->first_tile;
+        b->prev = b->prev->prev;
+
+        // Set head if the block we're merging is the head
+        if (b->prev == l->block_head) {
+            l->block_head = b;
+        }
+
+        deleteBlock(b->prev, l);
+        l->block_count--;
+
+        /* OLD code for reference
         // Stop if blocks are different types
         if (first_block->tile_state != first_block->prev->tile_state) {
-            first_index = first_block->first_tile;
             break;
         }
         // Grow block to encompass the next block
@@ -278,27 +294,46 @@ void Board::mergeBlock(block * b, line * l) {
         }
         deleteBlock(first_block->next, l);
         l->block_count--;
+        */
     }
-    // Get compatible blocks after this block
-    // Since we've been removing blocks, we start at before_block->next
-    block * last_block = first_block;
-    while (last_block->next) {
+
+    // Get compatible blocks after this block and merge into b
+    while (b->next) {
         // Stop if blocks are different types
-        if (last_block->tile_state != last_block->next->tile_state) {
+        if (b->tile_state != b->next->tile_state) {
+            break;
+        }
+        // Grow b to encompass the next block
+        b->belongs_to = b->belongs_to != -1 ? b->belongs_to : b->next->belongs_to;
+        b->block_length += b->next->block_length;
+        b->last_tile = b->next->last_tile;
+        b->next = b->next->next;
+
+        // Set tail if the block we're merging is the tail
+        if (b->next == l->block_tail) {
+            l->block_tail = b;
+        }
+
+        deleteBlock(b->next, l);
+        l->block_count--;
+        /* Old code for reference
+        // Stop if blocks are different types
+        if (first_block->tile_state != first_block->next->tile_state) {
             break; 
         }
         // Grow block to encompass the prevous block
-        last_block = last_block->next;
-        last_block->belongs_to = last_block->prev->belongs_to > -1 ? last_block->prev->belongs_to : last_block->belongs_to;
-        last_block->block_length += last_block->prev->block_length;
-        last_block->first_tile = last_block->prev->first_tile;
+        first_block = first_block->next;
+        first_block->belongs_to = first_block->prev->belongs_to > -1 ? first_block->prev->belongs_to : first_block->belongs_to;
+        first_block->block_length += first_block->prev->block_length;
+        first_block->first_tile = first_block->prev->first_tile;
         // Set head if the merged block was the head
-        if (last_block->prev == l->block_head) {
-            l->block_head = last_block;
+        if (first_block->prev == l->block_head) {
+            l->block_head = first_block;
         }
 
-        deleteBlock(last_block->prev, l);
+        deleteBlock(first_block->prev, l);
         l->block_count--;
+        */
     }
 }
 
