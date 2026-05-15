@@ -264,18 +264,20 @@ void Board::mergeBlock(block * b, line * l) {
         if (b->tile_state != b->prev->tile_state) {
             break;
         }
+        block * merging_block = b->prev;
+        
         // Grow b to encompass the previous block
-        b->belongs_to = b->belongs_to != -1 ? b->belongs_to : b->prev->belongs_to;
-        b->block_length += b->prev->block_length;
-        b->first_tile = b->prev->first_tile;
-        b->prev = b->prev->prev;
+        b->belongs_to = b->belongs_to != -1 ? b->belongs_to : merging_block->belongs_to;
+        b->block_length += merging_block->block_length;
+        b->first_tile = merging_block->first_tile;
+        b->prev = merging_block->prev;
 
         // Set head if the block we're merging is the head
-        if (b->prev == l->block_head) {
+        if (merging_block == l->block_head) {
             l->block_head = b;
         }
 
-        deleteBlock(b->prev, l);
+        deleteBlock(merging_block, l);
         l->block_count--;
 
         /* OLD code for reference
@@ -303,18 +305,19 @@ void Board::mergeBlock(block * b, line * l) {
         if (b->tile_state != b->next->tile_state) {
             break;
         }
+        block * merging_block = b->next;
         // Grow b to encompass the next block
-        b->belongs_to = b->belongs_to != -1 ? b->belongs_to : b->next->belongs_to;
-        b->block_length += b->next->block_length;
-        b->last_tile = b->next->last_tile;
-        b->next = b->next->next;
+        b->belongs_to = b->belongs_to != -1 ? b->belongs_to : merging_block->belongs_to;
+        b->block_length += merging_block->block_length;
+        b->last_tile = merging_block->last_tile;
+        b->next = merging_block->next;
 
         // Set tail if the block we're merging is the tail
-        if (b->next == l->block_tail) {
+        if (merging_block == l->block_tail) {
             l->block_tail = b;
         }
 
-        deleteBlock(b->next, l);
+        deleteBlock(merging_block, l);
         l->block_count--;
         /* Old code for reference
         // Stop if blocks are different types
