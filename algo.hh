@@ -17,9 +17,9 @@ private:
     // A queue of the pointers of the rows/cols which need to be analyzed next
     std::queue<line *> queue;
 
-    void runCertaintyStrategy(line * l);
-
     void findBlockClues(line * l);
+
+    bool runCertaintyStrategy(line * l);
 
     bool runGrowthStrategy(line * l);
 

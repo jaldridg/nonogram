@@ -10,16 +10,18 @@ Algo::Algo(Board * board) {
 
 void Algo::run() {
     // Fill the queue with all rows and cols
-    for(int i = 0; i < board->size; i++) {
-        queue.push(board->rows + i);
-        queue.push(board->cols + i);
-    }
+    for(int i = 0; i < board->size; i++) { queue.push(board->rows + i); }
+    for(int i = 0; i < board->size; i++) { queue.push(board->cols + i); }
 
     // Do a one time certainty sweep through the puzzle
-    int total_steps = queue.size();
+    int total_steps = 0; queue.size();
     for (int i = 0; i < queue.size(); i++) {
         line * l = queue.front();
-        runCertaintyStrategy(l);
+        if (runCertaintyStrategy(l)) {
+            total_steps++;
+            printf("\nStep %d: Certainty Strategy (%s %d)\n", total_steps, l->is_row ? "row" : "col", l->line_number + 1);
+            board->print();
+        }
         queue.pop();
         queue.push(l);
     }
@@ -27,15 +29,20 @@ void Algo::run() {
     // Main algorithm loop
     int no_solution_counter = 0;
     while (queue.size() != 0) {
-        line * l = queue.front();
-        queue.pop();
-        // See if our strategies completed the line
+        // Stop if algo is stuck
+        if (no_solution_counter == queue.size()) {
+            printf("Algorithm has exhausted its techniques over %d steps!\n", total_steps);
+            printf("%d lines remain unsolved\n", queue.size());
+            // Debug::printBlockClues();
+            return;
+        }
+
         bool line_updated = false;
-                 
+        line * l = queue.front();
+
+        queue.pop();
         if (attemptLineCompletion(l)) {
-            printf("attemptLineCompletion\n");
-            board->print();
-            Debug::printBlockClues();
+            printf("\nINTERNAL: Line Completion (%s %d)\n", l->is_row ? "row" : "col", l->line_number + 1);
             line_updated = true;
         } else {
             queue.push(l);
@@ -44,25 +51,21 @@ void Algo::run() {
         // Run strategies
         findBlockClues(l);
         if (runGrowthStrategy(l)) {
-            printf("runGrowthStrategy\n");
+            total_steps++;
+            printf("\nStep %d: Growth Strategy (%s %d)\n", total_steps, l->is_row ? "row" : "col", l->line_number + 1);
             board->print();
-            Debug::printBlockClues();
-            line_updated = true; 
+            // Debug::printBlockClues();
+            line_updated = true;
         } 
 
         no_solution_counter += !line_updated;
         if (line_updated) {
             no_solution_counter = 0;
         }
-
-        total_steps++;
-        if (no_solution_counter == queue.size()) {
-            printf("Algorithm has exhausted its techniques over %d steps!\n", total_steps);
-            printf("%d lines remain unsolved\n", queue.size());
-            Debug::printBlockClues();
-            return;
-        }
     }
+    // Puzzle successfully solved
+    printf("\nPuzzle solved in %d steps!\n", total_steps);
+
 }
 
 void Algo::findBlockClues(line * l) {
@@ -214,7 +217,7 @@ void Algo::findBlockClues(line * l) {
     }
 }
 
-void Algo::runCertaintyStrategy(line * l) {
+bool Algo::runCertaintyStrategy(line * l) {
     std::vector<int> * clues = l->clues;
 
     // Run certainty rule on each block in a line based on the space taken by blocks before and after
@@ -246,7 +249,9 @@ void Algo::runCertaintyStrategy(line * l) {
             int lower_limit = size_before + edge_uncertainty;
             int upper_limit = size_before + block_size_range - 1 - edge_uncertainty;
             board->setTileRange(l, lower_limit, upper_limit, FILLED);
+            return true;
         }
+        return false;
     }
 }
 
