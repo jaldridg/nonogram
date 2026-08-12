@@ -221,6 +221,7 @@ bool Algo::runCertaintyStrategy(line * l) {
     std::vector<int> * clues = l->clues;
 
     // Run certainty rule on each block in a line based on the space taken by blocks before and after
+    bool updated = false;
     for (int i = 0; i < clues->size(); i++) {
         // Calculate the size of blocks before current block
         int size_before = 0;
@@ -249,10 +250,10 @@ bool Algo::runCertaintyStrategy(line * l) {
             int lower_limit = size_before + edge_uncertainty;
             int upper_limit = size_before + block_size_range - 1 - edge_uncertainty;
             board->setTileRange(l, lower_limit, upper_limit, FILLED);
-            return true;
+            updated = true;
         }
-        return false;
     }
+    return updated;
 }
 
 bool Algo::runGrowthStrategy(line * l) {
