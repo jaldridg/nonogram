@@ -21,7 +21,6 @@ Board::Board() {
     // Start the list of open blocks for reallocation during the algorithm
     open_indices = std::vector<int>();
     int initial_indices = 2 * size;
-    int leftover_indices = blockCapacity - initial_indices;
     for (int i = initial_indices; i < blockCapacity; i++) {
         open_indices.push_back(i);
     }
@@ -41,18 +40,31 @@ Board::Board() {
 
     for (int i = 0; i < size; i++) {
         // Initilize clues
-        Clues rc = new std::vector<int>;
-        Clues cc = new std::vector<int>;
-
-        // Get the clues from our clue file reader
+        std::vector<int> * rlens = new std::vector<int>{};
+        std::vector<int> * clens = new std::vector<int>{};
         for (int j = 0; j < reader.row_clues.at(i).size(); j++) {
-            rc->push_back(reader.row_clues.at(i).at(j));
+            rlens->push_back(reader.row_clues.at(i).at(j));
         }
         for (int j = 0; j < reader.col_clues.at(i).size(); j++) {
-            cc->push_back(reader.col_clues.at(i).at(j));
+            clens->push_back(reader.col_clues.at(i).at(j));
         }
-        rows[i].clues = rc;
-        cols[i].clues = cc;
+
+        // Set sorted indecies to -1 (unsorted)
+        std::vector<int> * rslens = new std::vector<int>{};
+        std::vector<int> * cslens = new std::vector<int>{};
+        rows[i].clues->sorted_length_indeces = {};
+        for (int j = 0; j < rlens->size(); j++) {
+            rslens->at(j) = -1;
+        }
+        for (int j = 0; j < clens->size(); j++) {
+            cslens->at(j) = -1;
+        }
+
+        rows[i].clues->lengths = rlens;
+        rows[i].clues->sorted_length_indeces = rslens;
+        cols[i].clues->lengths = clens;
+        cols[i].clues->sorted_length_indeces = cslens;
+
 
         // Initialize our blocks
         // This involves our block storage, initial blocks, and their linked lists
@@ -68,21 +80,11 @@ Board::Board() {
         cols[i].block_tail = initial_col_block_ptr;
         rows[i].block_count = 1;
         cols[i].block_count = 1;
-
-        // Initilize tiles
-        rows[i].tiles = new Tilestate[size];
-        cols[i].tiles = new Tilestate[size];
-        for (int j = 0; j < size; j++) {
-            rows[i].tiles[j]= UNKNOWN;
-            cols[i].tiles[j] = UNKNOWN;
-        }
     }
 }
 
 void Board::clear() {
     for (int i = 0; i < size; i++) {
-        delete[] rows[i].tiles;
-        delete[] cols[i].tiles;
         delete rows[i].clues;
         delete cols[i].clues;
     }
@@ -442,7 +444,7 @@ void Board::completeLine(line * l) {
     l->unknown_tiles = 0;
 }
 
-int Board::getMaxClueIndex(line * l) {
+int Board::getLargestClueIndex(line * l) {
     int max_index = 0;
     for (int i = 0; i < l->clues->size(); i++) {
         if (l->clues->at(i) > l->clues->at(max_index)) {

@@ -18,20 +18,22 @@ struct block {
     int first_tile; // The index of the first tile in the block
     int last_tile;  // The index of the last tile in the block
     int block_length;
-    int belongs_to; // The index of the clue to which the block belongs
+    int belongs_to; // The index of the clues to which the block belongs
     Tilestate tile_state;
     block * prev;
     block * next;
 };
 
-typedef std::vector<int> * Clues;
+struct clue_data {
+    std::vector<int> lengths;
+    std::vector<int> sorted_length_indeces; // The indices of the clues if they were sorted by length
+};
 
 struct line {
     block * block_head;
     block * block_tail;
     int block_count;
-    Tiles tiles;
-    Clues clues;
+    clue_data * clues;
     int unknown_tiles;
     int filled_tiles;
     int line_number; // Lower towards the top left corner
@@ -68,15 +70,7 @@ public:
 
     void completeLine(line * line);
 
-    int getClue(std::vector<Clues> * clues, int num, int pos) {
-        return clues->at(num)->at(pos);
-    }
-
-    void setClue(std::vector<Clues> * clues, int num, int pos, int clue) {
-        clues->at(num)->at(pos) = clue;
-    }
-
-    int getMaxClueIndex(line * l);
+    int getLargestClueIndex(line * l);
 
 private:
 

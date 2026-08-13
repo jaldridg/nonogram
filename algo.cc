@@ -33,7 +33,7 @@ void Algo::run() {
         if (no_solution_counter == queue.size()) {
             printf("Algorithm has exhausted its techniques over %d steps!\n", total_steps);
             printf("%d lines remain unsolved\n", queue.size());
-            // Debug::printBlockClues();
+            Debug::printBlockClues();
             return;
         }
 
@@ -72,9 +72,6 @@ void Algo::findBlockClues(line * l) {
     if (l->unknown_tiles == 0) { return; }
 
     /*
-    Check if there's only one clue
-	If so all filled blocks belong to that clue
-
     Loop over blocks - 
         Keeping track of the following
             Prev block if there is one
@@ -118,7 +115,7 @@ void Algo::findBlockClues(line * l) {
             continue;
         }
 
-        int max_clue_index = board->getMaxClueIndex(l);
+        int max_clue_index = board->getLargestClueIndex(l);
         int max_clue_size = l->clues->at(max_clue_index);
         // Need second largest clue information
         /*
@@ -150,11 +147,6 @@ void Algo::findBlockClues(line * l) {
                 first_possible_clue = i;
                 break;
             }
-        }
-
-        // TODO: Remove after debugging
-        if(first_possible_clue > last_possible_clue) {
-            float i = 0 / 0; // doing it this way so I dont have to import assert.h
         }
 
         // You know the block's clue if the range is only one number

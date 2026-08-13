@@ -81,6 +81,7 @@ BoardReader::BoardReader() {
         i++;
     }
 
+    delete buffer;
     delete clue_buffer;  
 
     assert(row_clues.size() == col_clues.size());
